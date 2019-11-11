@@ -15,7 +15,7 @@ Ports:
     
 * You will need to copy the generated Public SSH keyfile to your systems that will SSH commands to this postprocessor.  Keyfile is located in /config/ssh
 
-* The locations on your downloader and media manager images must have the same path to the video files that this images has.
+* The downloaded video locations on your downloader and media manager docker containers must have the same path to the video files that this images has.
     
 * The completed download script that you add to your downloader will need the ssh prepended to it: 
 ssh root@mydownloader_host -p 5100 /opt/mp4_automator/qBittorrentPostProcess.py "%L" "%T" "%R" "%F" "%N" "%I"
