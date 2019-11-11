@@ -17,5 +17,5 @@ Ports:
 
 * The downloaded video locations on your downloader and media manager docker containers must have the same path to the video files that this images has.
     
-* The completed download script that you add to your downloader will need the ssh prepended to it: 
-ssh root@mydownloader_host -p 5100 /opt/mp4_automator/qBittorrentPostProcess.py "%L" "%T" "%R" "%F" "%N" "%I"
+* The completed download script that you added to your downloader, will need to change to have ssh: 
+ssh root@postprocess_host -p 5100 nohup /opt/mp4_automator/qBittorrentPostProcess.py "%L" "%T" "%R" "%F" "%N" "%I"
