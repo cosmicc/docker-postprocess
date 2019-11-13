@@ -49,6 +49,15 @@ RUN apk add --no-cache \
 RUN git clone https://github.com/clinton-hall/nzbToMedia.git /opt/nzbtomedia
 RUN ln -s /config/autoProcessMedia.cfg /opt/nzbtomedia/autoProcessMedia.cfg
 
+# Install poller preqs
+RUN apk add --no-cache python3 && \
+    echo "**** install pip ****" && \
+    python3 -m ensurepip && \
+    rm -r /usr/lib/python*/ensurepip && \
+    pip3 install --no-cache --upgrade pip setuptools wheel
+
+RUN pip3 install loguru
+
 COPY poller /
 RUN chmod +x /poller
 
