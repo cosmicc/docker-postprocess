@@ -27,7 +27,7 @@ try:
                     cmd = ['/opt/mp4_automator/qBittorrentPostProcess.py', f'{fsplit[0]}', f'{fsplit[1]}', f'{fsplit[2]}', f'{fsplit[3]}', f'{fsplit[4]}', f'{fsplit[5]}']
                     log.debug(cmd)
                     subprocess.Popen(cmd).wait()
-                    print(fsplit)
+                    file.unlink()
 
         sleep(1)
 except:
