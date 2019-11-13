@@ -6,24 +6,29 @@ from loguru import logger as log
 from sys import exit
 from time import sleep
 
-process_path = Path('/mnt/downloads/process')
+process_path = Path('/poll')
 
+if not process_path.exists():
+    log.error('Poll directory does not exist!')
+    exit(1)
 
-while True:
-    for file in process_path.iterdir():
-        if file.suffix != '.ignored':
-            fcontents = file.read_text()
-            fsplit = fcontents.split('|')
-            if len(fsplit) != 6:
-                log.warning('process_file contains unreadable contents')
-                file.rename(file.with_suffix('.ignored'))
-            else:
-                log.info(f'processing file {fsplit[2]}')
-                cmd = ['python', f'{fsplit[0]}', f'{fsplit[1]}', f'{fsplit[2]}', f'{fsplit[3]}', f'{fsplit[4]}', f'{fsplit[5]}']
-                log.debug(cmd)
-                subprocess.Popen(cmd).wait()
-                print(fsplit)
+try:
+    while True:
+        for file in process_path.iterdir():
+            if file.suffix != '.ignored':
+                fcontents = file.read_text()
+                fsplit = fcontents.split('|')
+                if len(fsplit) != 6:
+                    log.warning(f'Cannot parse process file contents ({fsplit[2]})')
+                    file.rename(file.with_suffix('.ignored'))
+                else:
+                    log.info(f'Processing file {fsplit[2]}')
+                    cmd = ['python', f'{fsplit[0]}', f'{fsplit[1]}', f'{fsplit[2]}', f'{fsplit[3]}', f'{fsplit[4]}', f'{fsplit[5]}']
+                    log.debug(cmd)
+                    subprocess.Popen(cmd).wait()
+                    print(fsplit)
 
-    sleep(1)
-
-exit(1)
+        sleep(1)
+except:
+    log.exception('Error in poller script:')
+    exit(1)
