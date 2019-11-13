@@ -57,3 +57,5 @@ RUN (crontab -l 2>/dev/null; echo "*/1 * * * * /poller") | crontab -
 #Adding Custom files
 #ADD init/ /etc/my_init.d/
 #RUN chmod -v +x /etc/my_init.d/*.sh
+
+ENTRYPOINT tail -f /dev/null
