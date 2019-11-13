@@ -34,6 +34,7 @@ RUN pip install "guessit<2"
 RUN pip install "subliminal<2"
 RUN pip install qtfaststart
 RUN pip install gevent
+RUN pip install python-qbittorrent
 # As per https://github.com/mdhiggins/sickbeard_mp4_automator/issues/643
 ONBUILD RUN pip uninstall stevedore
 ONBUILD RUN pip install stevedore==1.19.1
