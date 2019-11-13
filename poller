@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
-from pathlib import Path
 import subprocess
-from loguru import logger as log
+from pathlib import Path
 from sys import exit
 from time import sleep
+
+from loguru import logger as log
 
 process_path = Path('/poll')
 
@@ -23,7 +24,7 @@ try:
                     file.rename(file.with_suffix('.ignored'))
                 else:
                     log.info(f'Processing file {fsplit[2]}')
-                    cmd = ['python', f'{fsplit[0]}', f'{fsplit[1]}', f'{fsplit[2]}', f'{fsplit[3]}', f'{fsplit[4]}', f'{fsplit[5]}']
+                    cmd = ['/opt/mp4_automator/qBittorrentPostProcess.py', f'{fsplit[0]}', f'{fsplit[1]}', f'{fsplit[2]}', f'{fsplit[3]}', f'{fsplit[4]}', f'{fsplit[5]}']
                     log.debug(cmd)
                     subprocess.Popen(cmd).wait()
                     print(fsplit)
