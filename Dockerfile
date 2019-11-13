@@ -58,4 +58,4 @@ RUN (crontab -l 2>/dev/null; echo "*/1 * * * * /poller") | crontab -
 #ADD init/ /etc/my_init.d/
 #RUN chmod -v +x /etc/my_init.d/*.sh
 
-CMD /bin/ash
+ENTRYPOINT ["/bin/ash"]
