@@ -17,8 +17,8 @@ RUN pacman --noconfirm -S git curl
 RUN git clone https://github.com/mdhiggins/sickbeard_mp4_automator.git /opt/mp4_automator
 RUN pacman --noconfirm -S python2 python2-setuptools python2-pip gcc ffmpeg
 
-RUN pip install --upgrade PIP
-RUN pip install requests requests[security] requests-cache babelfish "guessit<2" "subliminal<2" qtfaststart gevent python-qbittorrent deluge-client
+RUN pip2 install --upgrade PIP
+RUN pip2 install requests requests[security] requests-cache babelfish "guessit<2" "subliminal<2" qtfaststart gevent python-qbittorrent deluge-client
 # As per https://github.com/mdhiggins/sickbeard_mp4_automator/issues/643
 ONBUILD RUN pip uninstall stevedore
 ONBUILD RUN pip install stevedore==1.19.1
