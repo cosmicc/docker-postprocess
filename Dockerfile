@@ -38,8 +38,6 @@ RUN chmod +x /poller
 
 COPY post_sickrage.py /config/post_sickrage.py
 
-RUN (crontab -l 2>/dev/null; echo "*/1 * * * * /poller") | crontab -
-
 RUN pacman --noconfirm -Scc
 
 #Adding Custom files
