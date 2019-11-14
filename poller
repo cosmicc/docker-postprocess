@@ -10,6 +10,8 @@ from loguru import logger as log
 log.add(sink=str('/config/logs/poller.log'), level=3, buffering=1, enqueue=True, backtrace=False, diagnose=False, serialize=False, colorize=False, delay=False)
 
 process_path = Path('/poll')
+mp4logpath = Path('/config/logs/mp4_automator').mkdir(parents=True, exist_ok=True)
+
 
 if not process_path.exists():
     log.error('Poll directory does not exist!')
