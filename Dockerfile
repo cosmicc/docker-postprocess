@@ -15,7 +15,7 @@ RUN pacman --noconfirm -S git curl
 
 # Install MP4 Automator
 RUN git clone https://github.com/mdhiggins/sickbeard_mp4_automator.git /opt/mp4_automator
-RUN pacman --noconfirm -S python2 python2-setuptools python2-pip python2-dev gcc openssl-dev ffmpeg
+RUN pacman --noconfirm -S python2 python2-setuptools python2-pip gcc ffmpeg
 
 RUN pip install --upgrade PIP
 RUN pip install requests requests[security] requests-cache babelfish "guessit<2" "subliminal<2" qtfaststart gevent python-qbittorrent deluge-client
