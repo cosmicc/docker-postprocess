@@ -7,6 +7,8 @@ from time import sleep
 
 from loguru import logger as log
 
+log.add(sink=str('/config/logs/poller.log'), level=3, buffering=1, enqueue=True, backtrace=False, diagnose=False, serialize=False, colorize=False, delay=False)
+
 process_path = Path('/poll')
 
 if not process_path.exists():
@@ -19,16 +21,20 @@ try:
             if file.suffix != '.ignored':
                 fcontents = file.read_text()
                 fsplit = fcontents.split('|')
-                if len(fsplit) != 6:
-                    log.warning(f'Cannot parse process file contents ({fsplit[2]})')
+                if len(fsplit) < 4:
+                    log.warning(f'Cannot parse process file contents ({fsplit[3]})')
                     file.rename(file.with_suffix('.ignored'))
                 else:
-                    log.info(f'Processing file {fsplit[2]}')
-                    cmd = ['/opt/mp4_automator/qBittorrentPostProcess.py', f'{fsplit[0]}', f'{fsplit[1]}', f'{fsplit[2]}', f'{fsplit[3]}', f'{fsplit[4]}', f'{fsplit[5]}']
-                    log.debug(cmd)
-                    subprocess.Popen(cmd).wait()
-                    file.unlink()
-
+                    if fsplit[0] == 'qbittorrent':
+                        log.info(f'Processing Qbittorrent download {fsplit[3]}')
+                        cmd = ['/opt/mp4_automator/qBittorrentPostProcess.py', f'{fsplit[1]}', f'{fsplit[2]}', f'{fsplit[3]}', f'{fsplit[4]}', f'{fsplit[5]}', f'{fsplit[6]}']
+                        log.debug(cmd)
+                        subprocess.Popen(cmd).wait()
+                        file.unlink()
+                    elif fsplit[0] == 'sickrage':
+                        log.info(f'Processing Sickrage postprocess {fsplit[3]}')
+                    elif fsplit[0] == 'radarr':
+                        log.info(f'Processing Radarr postprocess {fsplit[3]}')
         sleep(1)
 except:
     log.exception('Error in poller script:')

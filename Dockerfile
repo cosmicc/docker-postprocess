@@ -35,10 +35,12 @@ RUN pip install "subliminal<2"
 RUN pip install qtfaststart
 RUN pip install gevent
 RUN pip install python-qbittorrent
+RUN pip install deluge-client
 # As per https://github.com/mdhiggins/sickbeard_mp4_automator/issues/643
 ONBUILD RUN pip uninstall stevedore
 ONBUILD RUN pip install stevedore==1.19.1
 RUN ln -s /config/autoProcess.ini /opt/mp4_automator/autoProcess.ini
+RUN ln -s /config/logs/mp4_automator /var/log/sickbeard_mp4_automator
 
 # Install nzbToMedia
 RUN apk add --no-cache \
@@ -61,6 +63,8 @@ RUN pip3 install loguru
 
 COPY poller /
 RUN chmod +x /poller
+
+COPY post_sickrage.py /config/post_sickrage.py
 
 RUN (crontab -l 2>/dev/null; echo "*/1 * * * * /poller") | crontab -
 
