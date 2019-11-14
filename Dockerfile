@@ -31,7 +31,7 @@ RUN git clone https://github.com/clinton-hall/nzbToMedia.git /opt/nzbtomedia
 RUN ln -s /config/autoProcessMedia.cfg /opt/nzbtomedia/autoProcessMedia.cfg
 
 # Install poller preqs
-RUN pacman --noconfirm -S python3 python3-pip
+RUN pacman --noconfirm -S python python-pip
 RUN pip3 install --upgrade pip setuptools wheel loguru
 
 COPY poller /
