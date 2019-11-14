@@ -7,6 +7,9 @@ VOLUME /downloads
 VOLUME /transcode
 
 
+# Update Pacman
+RUN pacman -Syu
+
 # Install Git & Curl
 RUN pacman -S git curl
 
