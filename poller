@@ -24,7 +24,7 @@ try:
                 fcontents = file.read_text()
                 fsplit = fcontents.split('|')
                 if len(fsplit) < 4:
-                    log.warning(f'Cannot parse process file contents ({fsplit[3]})')
+                    log.warning(f'Cannot parse process file contents ({str(file)})')
                     file.rename(file.with_suffix('.ignored'))
                 else:
                     if fsplit[0] == 'qbittorrent':
