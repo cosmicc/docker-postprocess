@@ -14,19 +14,17 @@ RUN apk add --no-cache git curl
 RUN git clone https://github.com/mdhiggins/sickbeard_mp4_automator.git /opt/mp4_automator
 
 RUN apk add --no-cache \
-  python \
-  py-setuptools \
-  py-pip \
-  python-dev \
+  python3 \
+  py3-setuptools \
+  python3-dev \
   libffi-dev \
   gcc \
   musl-dev \
   openssl-dev \
   ffmpeg
 
-
 # Install python and packages
-RUN apk add --no-cache python3 && pip3 install --no-cache --upgrade pip
+RUN pip3 install --no-cache --upgrade pip
 
 RUN pip3 install setuptools wheel requests requests[security] requests-cache babelfish "guessit<2" "subliminal<2" qtfaststart gevent python-qbittorrent deluge-client loguru
 # As per https://github.com/mdhiggins/sickbeard_mp4_automator/issues/643
