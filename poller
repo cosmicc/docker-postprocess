@@ -19,8 +19,9 @@ if not process_path.exists():
 
 log.info('Poller is starting...')
 
-try:
-    while True:
+while True:
+    try:
+        skipsleep = False
         for file in process_path.iterdir():
             if file.suffix != '.ignored':
                 fcontents = file.read_text()
@@ -35,11 +36,16 @@ try:
                         log.debug(cmd)
                         subprocess.Popen(cmd).wait()
                         file.unlink()
+                        skipsleep = True
                     elif fsplit[0] == 'sickrage':
                         log.info(f'Processing Sickrage postprocess {fsplit[3]}')
+                        skipsleep = True
                     elif fsplit[0] == 'radarr':
                         log.info(f'Processing Radarr postprocess {fsplit[3]}')
-        sleep(1)
-except:
-    log.exception('Error in poller script:')
-    exit(1)
+                        skipsleep = True
+    except:
+        log.exception('Error in poller script:')
+        exit(1)
+    if not skipsleep:
+        sleep(10)
+
