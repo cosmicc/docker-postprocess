@@ -17,6 +17,8 @@ if not process_path.exists():
     log.error('Poll directory does not exist!')
     exit(1)
 
+log.info('Poller is starting...')
+
 try:
     while True:
         for file in process_path.iterdir():
