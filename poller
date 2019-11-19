@@ -31,7 +31,7 @@ while True:
                     log.warning(f'Cannot parse process file contents ({str(file)})')
                     file.rename(file.with_suffix('.ignored'))
                 else:
-                    if fsplit[0] == 'deluge':
+                    if file.suffix == '.deluge':
                         log.info(f'Processing Deluge download {fsplit[2]}')
                         cmd = ['/opt/mp4_automator/delugePostProcess.py', f'{fsplit[1]}', f'{fsplit[2]}', f'{fsplit[3]}']
                         log.debug(cmd)
