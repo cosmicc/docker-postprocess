@@ -23,6 +23,7 @@ while True:
     try:
         skipsleep = False
         for file in process_path.iterdir():
+            log.info(f'start of {str(file)}')
             if file.suffix != '.ignored':
                 fcontents = file.read_text()
                 fsplit = fcontents.split('|')
