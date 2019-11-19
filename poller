@@ -26,7 +26,7 @@ while True:
             if file.suffix != '.ignored':
                 fcontents = file.read_text()
                 fsplit = fcontents.split('|')
-                if len(fsplit) < 3:
+                if len(fsplit) < 4:
                     log.warning(f'Cannot parse process file contents ({str(file)})')
                     file.rename(file.with_suffix('.ignored'))
                 else:
@@ -48,4 +48,4 @@ while True:
         log.exception('Error in poller script:')
         exit(1)
     if not skipsleep:
-        sleep(10)
+        sleep(60)
