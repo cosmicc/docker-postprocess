@@ -40,14 +40,14 @@ while True:
                         skipsleep = True
                     elif file.suffix == '.sonarr':
                         log.info(f'Processing Sonarr postprocess {fsplit[2]}')
-                        cmd = ['/opt/mp4_automator/delugePostProcess.py', f'{fsplit[1]}', f'{fsplit[2]}', f'{fsplit[3]}']
+                        cmd = ['/opt/mp4_automator/postSonarr.py', f'{fsplit[1]}', f'{fsplit[2]}', f'{fsplit[3]}']
                         log.debug(cmd)
                         subprocess.Popen(cmd).wait()
                         file.unlink()
                         skipsleep = True
                     elif file.suffix == '.radarr':
                         log.info(f'Processing Radarr postprocess {fsplit[2]}')
-                        cmd = ['/opt/mp4_automator/delugePostProcess.py', f'{fsplit[1]}', f'{fsplit[2]}', f'{fsplit[3]}']
+                        cmd = ['/opt/mp4_automator/postRadarr.py', f'{fsplit[1]}', f'{fsplit[2]}', f'{fsplit[3]}']
                         log.debug(cmd)
                         subprocess.Popen(cmd).wait()
                         file.unlink()
