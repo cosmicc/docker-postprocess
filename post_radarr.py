@@ -2,5 +2,5 @@
 
 import sys
 
-with open(f'/downloads/process/poll/{sys.argv[2]}.radarr', 'w') as f:
+with open('/downloads/process/poll/%s.radarr' % (sys.argv[2],), 'w') as f:
     f.write('radarr|%s|%s|%s' % (sys.argv[1], sys.argv[2], sys.argv[3]))
