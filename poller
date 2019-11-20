@@ -27,31 +27,31 @@ while True:
             if file.suffix != '.ignored':
                 fcontents = file.read_text()
                 fsplit = fcontents.split('|')
-                if len(fsplit) < 1:
-                    log.warning(f'Cannot parse process file contents ({str(file)})')
-                    file.rename(file.with_suffix('.ignored'))
-                else:
-                    if file.suffix == '.deluge':
+                if file.suffix == '.deluge':
+                    if len(fsplit) < 4:
+                        log.warning(f'Cannot parse process file contents ({str(file)})')
+                        file.rename(file.with_suffix('.ignored'))
+                    else:
                         log.info(f'Processing Deluge download {fsplit[2]}')
                         cmd = ['/opt/mp4_automator/delugePostProcess.py', f'{fsplit[1]}', f'{fsplit[2]}', f'{fsplit[3]}']
                         log.debug(cmd)
                         subprocess.Popen(cmd).wait()
                         file.unlink()
                         skipsleep = True
-                    elif file.suffix == '.sonarr':
-                        log.info(f'Processing Sonarr postprocess {fsplit[1]}')
-                        cmd = ['/opt/mp4_automator/postSonarr.py', f'{fsplit[1]}']
-                        log.debug(cmd)
-                        subprocess.Popen(cmd).wait()
-                        file.unlink()
-                        skipsleep = True
-                    elif file.suffix == '.radarr':
-                        log.info(f'Processing Radarr postprocess {fsplit[1]}')
-                        cmd = ['/opt/mp4_automator/postRadarr.py', f'{fsplit[1]}']
-                        log.debug(cmd)
-                        subprocess.Popen(cmd).wait()
-                        file.unlink()
-                    log.info(f'Finished Processing of {str(file)}')
+                elif file.suffix == '.sonarr':
+                    log.info(f'Processing Sonarr postprocess')
+                    cmd = ['/opt/mp4_automator/postSonarr.py']
+                    log.debug(cmd)
+                    subprocess.Popen(cmd).wait()
+                    file.unlink()
+                    skipsleep = True
+                elif file.suffix == '.radarr':
+                    log.info(f'Processing Radarr postprocess')
+                    cmd = ['/opt/mp4_automator/postRadarr.py']
+                    log.debug(cmd)
+                    subprocess.Popen(cmd).wait()
+                    file.unlink()
+                log.info(f'Finished Processing of {str(file)}')
     except:
         log.exception('Error in poller script:')
         exit(1)
