@@ -104,10 +104,45 @@ while True:
                     skipsleep = True
                 elif file.suffix == '.radarr':
                     log.info(f'Processing Radarr postprocess')
+                    fcontents = file.read_text()
+                    fsplit = fcontents.split('\n')
+                    if fsplit[0] != '':
+                        os.environ['radarr_eventtype'] = fsplit[0]
+                    if fsplit[1] != '':
+                        os.environ['radarr_isupgrade'] = fsplit[1]
+                    if fsplit[2] != '':
+                        os.environ['radarr_movie_id'] = fsplit[2]
+                    if fsplit[3] != '':
+                        os.environ['radarr_movie_title'] = fsplit[3]
+                    if fsplit[4] != '':
+                        os.environ['radarr_movie_path'] = fsplit[4]
+                    if fsplit[5] != '':
+                        os.environ['radarr_movie_imdbid'] = fsplit[5]
+                    if fsplit[6] != '':
+                        os.environ['radarr_moviefile_id'] = fsplit[6]
+                    if fsplit[7] != '':
+                        os.environ['radarr_moviefile_relativepath'] = fsplit[7]
+                    if fsplit[8] != '':
+                        os.environ['radarr_moviefile_path'] = fsplit[8]
+                    if fsplit[9] != '':
+                        os.environ['radarr_moviefile_quality'] = fsplit[9]
+                    if fsplit[10] != '':
+                        os.environ['radarr_moviefile_qualityversion'] = fsplit[10]
+                    if fsplit[11] != '':
+                        os.environ['radarr_moviefile_releasegroup'] = fsplit[11]
+                    if fsplit[12] != '':
+                        os.environ['radarr_moviefile_scenename'] = fsplit[12]
+                    if fsplit[13] != '':
+                        os.environ['radarr_moviefile_sourcepath'] = fsplit[13]
+                    if fsplit[14] != '':
+                        os.environ['radarr_moviefile_sourcefolder'] = fsplit[14]
+                    if fsplit[15] != '':
+                        os.environ['radarr_download_id'] = fsplit[15]
                     cmd = ['/opt/mp4_automator/postRadarr.py']
                     log.debug(cmd)
                     subprocess.Popen(cmd).wait()
-                    file.unlink()
+                    # file.unlink()
+                    skipsleep = True
                 log.info(f'Finished Processing of {str(file)}')
     except:
         log.exception('Error in poller script:')
