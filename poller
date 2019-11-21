@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
+import os
 import subprocess
 from pathlib import Path
 from sys import exit
 from time import sleep
-import os
 
 from loguru import logger as log
 
@@ -37,7 +37,7 @@ while True:
                         cmd = ['/opt/mp4_automator/delugePostProcess.py', f'{fsplit[1]}', f'{fsplit[2]}', f'{fsplit[3]}']
                         log.debug(cmd)
                         subprocess.Popen(cmd).wait()
-                        file.unlink()
+                        #file.unlink()
                         skipsleep = True
                 elif file.suffix == '.sonarr':
                     log.info(f'Processing Sonarr postprocess')
