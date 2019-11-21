@@ -43,6 +43,7 @@ while True:
                     log.info(f'Processing Sonarr postprocess')
                     fcontents = file.read_text()
                     fsplit = fcontents.split('\n')
+                    log.info(fsplit)
                     if fsplit[0] != '':
                         os.environ['sonarr_eventtype'] = fsplit[0]
                     if fsplit[1] != '':
@@ -100,7 +101,7 @@ while True:
                     cmd = ['/opt/mp4_automator/postSonarr.py']
                     log.debug(cmd)
                     subprocess.Popen(cmd).wait()
-                    # file.unlink()
+                    file.unlink()
                     skipsleep = True
                 elif file.suffix == '.radarr':
                     log.info(f'Processing Radarr postprocess')
@@ -141,7 +142,7 @@ while True:
                     cmd = ['/opt/mp4_automator/postRadarr.py']
                     log.debug(cmd)
                     subprocess.Popen(cmd).wait()
-                    # file.unlink()
+                    file.unlink()
                     skipsleep = True
                 log.info(f'Finished Processing of {str(file)}')
     except:
