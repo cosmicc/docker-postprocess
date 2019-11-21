@@ -31,7 +31,7 @@ RUN pip3 install setuptools wheel requests requests[security] requests-cache bab
 ONBUILD RUN pip3 uninstall stevedore
 ONBUILD RUN pip3 install stevedore==1.19.1
 RUN ln -s /config/autoProcess.ini /opt/mp4_automator/autoProcess.ini
-RUM rm /opt/mp4_automator/logging.ini
+RUN rm /opt/mp4_automator/logging.ini
 RUN ln -s /config/logging.ini /opt/mp4_automator/logging.ini
 RUN ln -s /config/logs/mp4_automator /var/log/sickbeard_mp4_automator
 
