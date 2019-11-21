@@ -4,6 +4,7 @@ import subprocess
 from pathlib import Path
 from sys import exit
 from time import sleep
+import os
 
 from loguru import logger as log
 
@@ -25,9 +26,9 @@ while True:
         for file in process_path.iterdir():
             log.info(f'start of {str(file)}')
             if file.suffix != '.ignored':
-                fcontents = file.read_text()
-                fsplit = fcontents.split('|')
                 if file.suffix == '.deluge':
+                    fcontents = file.read_text()
+                    fsplit = fcontents.split('|')
                     if len(fsplit) < 4:
                         log.warning(f'Cannot parse process file contents ({str(file)})')
                         file.rename(file.with_suffix('.ignored'))
@@ -40,10 +41,39 @@ while True:
                         skipsleep = True
                 elif file.suffix == '.sonarr':
                     log.info(f'Processing Sonarr postprocess')
+                    fcontents = file.read_text()
+                    fsplit = fcontents.split('\n')
+                    os.environ['sonarr_eventtype'] = fsplit[0]
+                    os.environ['sonarr_isupgrade'] = fsplit[1]
+                    os.environ['sonarr_series_id'] = fsplit[2]
+                    os.environ['sonarr_series_title'] = fsplit[3]
+                    os.environ['sonarr_series_path'] = fsplit[4]
+                    os.environ['sonarr_series_tvdbid'] = fsplit[5]
+                    os.environ['sonarr_series_tvmazeid'] = fsplit[6]
+                    os.environ['sonarr_series_imdb'] = fsplit[7]
+                    os.environ['sonarr_series_type'] = fsplit[8]
+                    os.environ['sonarr_episodefile_id'] = fsplit[9]
+                    os.environ['sonarr_episodefile_relativepath'] = fsplit[10]
+                    os.environ['sonarr_episodefile_path'] = fsplit[11]
+                    os.environ['sonarr_episodefile_episodecount'] = fsplit[12]
+                    os.environ['sonarr_episodefile_seasonnumber'] = fsplit[13]
+                    os.environ['sonarr_episodefile_episodenumbers'] = fsplit[14]
+                    os.environ['sonarr_episodefile_episodeairdates'] = fsplit[15]
+                    os.environ['sonarr_episodefile_episodeairdatesutc'] = fsplit[16]
+                    os.environ['sonarr_episodefile_episodetitles'] = fsplit[17]
+                    os.environ['sonarr_episodefile_quality'] = fsplit[18]
+                    os.environ['sonarr_episodefile_qualityversion'] = fsplit[19]
+                    os.environ['sonarr_episodefile_releasegroup'] = fsplit[20]
+                    os.environ['sonarr_episodefile_scenename'] = fsplit[21]
+                    os.environ['sonarr_episodefile_sourcepath'] = fsplit[22]
+                    os.environ['sonarr_episodefile_sourcefolder'] = fsplit[23]
+                    os.environ['sonarr_deletedrelativepaths'] = fsplit[24]
+                    os.environ['sonarr_deletedpaths'] = fsplit[25]
+                    os.environ['sonarr_download_id'] = fsplit[26]
                     cmd = ['/opt/mp4_automator/postSonarr.py']
                     log.debug(cmd)
                     subprocess.Popen(cmd).wait()
-                    file.unlink()
+                    # file.unlink()
                     skipsleep = True
                 elif file.suffix == '.radarr':
                     log.info(f'Processing Radarr postprocess')
