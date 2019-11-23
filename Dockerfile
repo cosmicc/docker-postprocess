@@ -50,7 +50,9 @@ RUN ln -s /config/autoProcessMedia.cfg /opt/nzbtomedia/autoProcessMedia.cfg
 COPY poller /
 RUN chmod +x /poller
 
-COPY post_sickrage.py /config/post_sickrage.py
+RUN rm -f /opt/mp4_automator/post_process/*
+
+COPY post_process.py /opt/mp4_automator/post_process
 
 RUN chown 1000.1000 /opt/mp4_automator -R
 
