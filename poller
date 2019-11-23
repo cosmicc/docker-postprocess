@@ -8,6 +8,9 @@ from time import sleep
 
 from loguru import logger as log
 
+os.setgid(os.environ['PGID'])
+os.setuid(os.environ['PUID'])
+
 log.add(sink=str('/config/logs/poller.log'), level=3, buffering=1, enqueue=True, backtrace=False, diagnose=False, serialize=False, colorize=False, delay=False)
 
 process_path = Path('/poll')
@@ -20,15 +23,9 @@ if not process_path.exists():
 
 log.info('Poller is starting...')
 
-puid = os.environ['PUID']
-pgid = os.environ['PGID']
 
-
-def demote(user_uid, user_gid):
-    def result():
-        os.setgid(user_gid)
-        os.setuid(user_uid)
-    return result
+def report_ids(msg):
+    print('uid, gid = %d, %d, %s' % (os.getuid(), os.getgid(), msg))
 
 
 while True:
