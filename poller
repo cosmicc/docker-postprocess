@@ -47,7 +47,7 @@ while True:
                         log.info(f'Processing Deluge download {fsplit[2]}')
                         cmd = ['/opt/mp4_automator/delugePostProcess.py', f'{fsplit[1]}', f'{fsplit[2]}', f'{fsplit[3]}']
                         log.debug(cmd)
-                        process = subprocess.Popen(cmd, preexec_fn=demote(puid, pgid))
+                        process = subprocess.Popen(cmd)
                         result = process.wait()
                         file.unlink()
                         skipsleep = True
