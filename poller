@@ -8,8 +8,8 @@ from time import sleep
 
 from loguru import logger as log
 
-os.setgid(os.environ['PGID'])
-os.setuid(os.environ['PUID'])
+os.setgid(int(os.environ['PGID']))
+os.setuid(int(os.environ['PUID']))
 
 log.add(sink=str('/config/logs/poller.log'), level=3, buffering=1, enqueue=True, backtrace=False, diagnose=False, serialize=False, colorize=False, delay=False)
 
