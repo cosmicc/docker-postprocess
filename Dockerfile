@@ -52,8 +52,6 @@ RUN chmod +x /poller
 
 COPY post_sickrage.py /config/post_sickrage.py
 
-#Adding Custom files
-#ADD init/ /etc/my_init.d/
-#RUN chmod -v +x /etc/my_init.d/*.sh
+RUN chown 1000.1000 /opt/mp4_automator -R
 
 ENTRYPOINT ["/poller"]
