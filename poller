@@ -20,6 +20,17 @@ if not process_path.exists():
 
 log.info('Poller is starting...')
 
+puid = os.environ['PUID']
+pgid = os.environ['PGID']
+
+
+def demote(user_uid, user_gid):
+    def result():
+        os.setgid(user_gid)
+        os.setuid(user_uid)
+    return result
+
+
 while True:
     try:
         skipsleep = False
@@ -36,7 +47,8 @@ while True:
                         log.info(f'Processing Deluge download {fsplit[2]}')
                         cmd = ['/opt/mp4_automator/delugePostProcess.py', f'{fsplit[1]}', f'{fsplit[2]}', f'{fsplit[3]}']
                         log.debug(cmd)
-                        subprocess.Popen(cmd).wait()
+                        process = subprocess.Popen(cmd, preexec_fn=demote(puid, pgid))
+                        result = process.wait()
                         file.unlink()
                         skipsleep = True
                 elif file.suffix == '.sonarr':
