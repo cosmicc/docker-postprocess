@@ -50,7 +50,8 @@ RUN ln -s /config/autoProcessMedia.cfg /opt/nzbtomedia/autoProcessMedia.cfg
 COPY poller /
 RUN chmod +x /poller
 
-RUN rm -f /opt/mp4_automator/post_process/*
+RUN rm /opt/mp4_automator/post_process/* -r
+RUN mkdir /opt/mp4_automator/post_process/resources
 
 COPY post_process.py /opt/mp4_automator/post_process
 
