@@ -22,14 +22,14 @@ if not process_path.exists():
     log.error('Poll directory does not exist!')
     exit(1)
 
-log.info('Poller is starting...')
+log.info('Postprocess is starting')
 
 while True:
     try:
         skipsleep = False
         for file in process_path.iterdir():
             log.info(f'start of {str(file)}')
-            if file.suffix != '.ignored':
+            if file.suffix != '.ignored' and file.suffix != '.failed':
                 if file.suffix == '.deluge':
                     fcontents = file.read_text()
                     fsplit = fcontents.split('|')
@@ -44,122 +44,21 @@ while True:
                             configfile = '/config/autoProcessTV.ini'
                         elif str(procpath) == '/downloads/complete/movies':
                             configfile = '/config/autoProcessMOVIE.ini'
-                        log.info(f'Processing Deluge download {str(procfile)}')
+                        log.info(f'Starting processing deluge download {str(procfile)}')
                         cmd = ['/usr/bin/python3', '/opt/mp4_automator/manual.py', '-i', f'{procfull}', '-a', '-c', f'{configfile}']
                         log.debug(cmd)
                         process = subprocess.Popen(cmd)
                         result = process.wait()
-                        log.info(f'Result: {result}')
-                        file.unlink()
+                        if result == 0:
+                            log.info(f'Conversion returned success')
+                            file.unlink()
+                        else:
+                            log.error(f'Error ({result}) returned in conversion')
+                            file.rename(file.with_suffix('.failed'))
                         skipsleep = True
-                        log.info(f'Finished Deluge Download {str(procfile)}')
-                elif file.suffix == '.sonarr':
-                    log.info(f'Processing Sonarr postprocess')
-                    fcontents = file.read_text()
-                    fsplit = fcontents.split('\n')
-                    log.info(fsplit)
-                    if fsplit[0] != '':
-                        os.environ['sonarr_eventtype'] = fsplit[0]
-                    if fsplit[1] != '':
-                        os.environ['sonarr_isupgrade'] = fsplit[1]
-                    if fsplit[2] != '':
-                        os.environ['sonarr_series_id'] = fsplit[2]
-                    if fsplit[3] != '':
-                        os.environ['sonarr_series_title'] = fsplit[3]
-                    if fsplit[4] != '':
-                        os.environ['sonarr_series_path'] = fsplit[4]
-                    if fsplit[5] != '':
-                        os.environ['sonarr_series_tvdbid'] = fsplit[5]
-                    if fsplit[6] != '':
-                        os.environ['sonarr_series_tvmazeid'] = fsplit[6]
-                    if fsplit[7] != '':
-                        os.environ['sonarr_series_imdb'] = fsplit[7]
-                    if fsplit[8] != '':
-                        os.environ['sonarr_series_type'] = fsplit[8]
-                    if fsplit[9] != '':
-                        os.environ['sonarr_episodefile_id'] = fsplit[9]
-                    if fsplit[10] != '':
-                        os.environ['sonarr_episodefile_relativepath'] = fsplit[10]
-                    if fsplit[11] != '':
-                        os.environ['sonarr_episodefile_path'] = fsplit[11]
-                    if fsplit[12] != '':
-                        os.environ['sonarr_episodefile_episodecount'] = fsplit[12]
-                    if fsplit[13] != '':
-                        os.environ['sonarr_episodefile_seasonnumber'] = fsplit[13]
-                    if fsplit[14] != '':
-                        os.environ['sonarr_episodefile_episodenumbers'] = fsplit[14]
-                    if fsplit[15] != '':
-                        os.environ['sonarr_episodefile_episodeairdates'] = fsplit[15]
-                    if fsplit[16] != '':
-                        os.environ['sonarr_episodefile_episodeairdatesutc'] = fsplit[16]
-                    if fsplit[17] != '':
-                        os.environ['sonarr_episodefile_episodetitles'] = fsplit[17]
-                    if fsplit[18] != '':
-                        os.environ['sonarr_episodefile_quality'] = fsplit[18]
-                    if fsplit[19] != '':
-                        os.environ['sonarr_episodefile_qualityversion'] = fsplit[19]
-                    if fsplit[20] != '':
-                        os.environ['sonarr_episodefile_releasegroup'] = fsplit[20]
-                    if fsplit[21] != '':
-                        os.environ['sonarr_episodefile_scenename'] = fsplit[21]
-                    if fsplit[22] != '':
-                        os.environ['sonarr_episodefile_sourcepath'] = fsplit[22]
-                    if fsplit[23] != '':
-                        os.environ['sonarr_episodefile_sourcefolder'] = fsplit[23]
-                    if fsplit[24] != '':
-                        os.environ['sonarr_deletedrelativepaths'] = fsplit[24]
-                    if fsplit[25] != '':
-                        os.environ['sonarr_deletedpaths'] = fsplit[25]
-                    if fsplit[26] != '':
-                        os.environ['sonarr_download_id'] = fsplit[26]
-                    cmd = ['/opt/mp4_automator/postSonarr.py']
-                    log.debug(cmd)
-                    subprocess.Popen(cmd).wait()
-                    file.unlink()
-                    skipsleep = True
-                elif file.suffix == '.radarr':
-                    log.info(f'Processing Radarr postprocess')
-                    fcontents = file.read_text()
-                    fsplit = fcontents.split('\n')
-                    if fsplit[0] != '':
-                        os.environ['radarr_eventtype'] = fsplit[0]
-                    if fsplit[1] != '':
-                        os.environ['radarr_isupgrade'] = fsplit[1]
-                    if fsplit[2] != '':
-                        os.environ['radarr_movie_id'] = fsplit[2]
-                    if fsplit[3] != '':
-                        os.environ['radarr_movie_title'] = fsplit[3]
-                    if fsplit[4] != '':
-                        os.environ['radarr_movie_path'] = fsplit[4]
-                    if fsplit[5] != '':
-                        os.environ['radarr_movie_imdbid'] = fsplit[5]
-                    if fsplit[6] != '':
-                        os.environ['radarr_moviefile_id'] = fsplit[6]
-                    if fsplit[7] != '':
-                        os.environ['radarr_moviefile_relativepath'] = fsplit[7]
-                    if fsplit[8] != '':
-                        os.environ['radarr_moviefile_path'] = fsplit[8]
-                    if fsplit[9] != '':
-                        os.environ['radarr_moviefile_quality'] = fsplit[9]
-                    if fsplit[10] != '':
-                        os.environ['radarr_moviefile_qualityversion'] = fsplit[10]
-                    if fsplit[11] != '':
-                        os.environ['radarr_moviefile_releasegroup'] = fsplit[11]
-                    if fsplit[12] != '':
-                        os.environ['radarr_moviefile_scenename'] = fsplit[12]
-                    if fsplit[13] != '':
-                        os.environ['radarr_moviefile_sourcepath'] = fsplit[13]
-                    if fsplit[14] != '':
-                        os.environ['radarr_moviefile_sourcefolder'] = fsplit[14]
-                    if fsplit[15] != '':
-                        os.environ['radarr_download_id'] = fsplit[15]
-                    cmd = ['/opt/mp4_automator/postRadarr.py']
-                    log.debug(cmd)
-                    subprocess.Popen(cmd).wait()
-                    file.unlink()
-                    skipsleep = True
+                        log.info(f'Finished processing deluge download {str(procfile)}')
     except:
-        log.exception('Error in poller script:')
+        log.exception('Error in postrocess main routine:')
         exit(1)
     if not skipsleep:
         sleep(30)
