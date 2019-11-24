@@ -39,10 +39,11 @@ while True:
                         procpath = Path(fsplit[3])
                         procfull = procpath / procfile
                         log.info(f'Processing Deluge download {str(procfile)}')
-                        cmd = ['/opt/mp4_automator/manual.py', '-i', f'{procfull}', '-a']
+                        cmd = ['/usr/bin/python3', '/opt/mp4_automator/manual.py', '-i', f'{procfull}', '-a', '-c', '/config/autoProcess.ini']
                         log.debug(cmd)
                         process = subprocess.Popen(cmd)
                         result = process.wait()
+                        log.info(f'Result: {result}')
                         file.unlink()
                         skipsleep = True
                         log.info(f'Finished Deluge Download {str(procfile)}')
