@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
-import os
 import json
+import os
+
 from loguru import logger as log
 
 os.setgid(int(os.environ['PGID']))
@@ -11,12 +12,18 @@ log.add(sink=str('/config/logs/poller.log'), level=3, buffering=1, enqueue=True,
 
 
 def main():
-    log.info("Custom Post Process Script")
+    log.info("Custom post-process script starting...")
 
-    files = json.loads(os.environ.get('MH_FILES'))
+    try:
+        files = json.loads(os.environ.get('MH_FILES'))
+    except:
+        log.exception('json load error')
 
-    for filename in files:
-        log.info(filename)
+    try:
+        for filename in files:
+            log.info(filename)
+    except:
+        log.exception('file loop error')
 
 
 if __name__ == "__main__":
