@@ -34,6 +34,7 @@ RUN ln -s /config/autoProcess.ini /opt/mp4_automator/autoProcess.ini
 # RUN rm /opt/mp4_automator/logging.ini
 # RUN ln -s /config/logging.ini /opt/mp4_automator/logging.ini
 RUN ln -s /config/logs/mp4_automator /var/log/sickbeard_mp4_automator
+RUN ln -s /config/logging.ini /opt/mp4_automator/logging.ini
 
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
@@ -46,6 +47,7 @@ RUN apk add --no-cache \
     tar
 RUN git clone https://github.com/clinton-hall/nzbToMedia.git /opt/nzbtomedia
 RUN ln -s /config/autoProcessMedia.cfg /opt/nzbtomedia/autoProcessMedia.cfg
+
 
 COPY poller /
 RUN chmod +x /poller
