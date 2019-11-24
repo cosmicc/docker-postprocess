@@ -11,7 +11,9 @@ from loguru import logger as log
 os.setgid(int(os.environ['PGID']))
 os.setuid(int(os.environ['PUID']))
 
-log.add(sink=str('/config/logs/postprocess.log'), level=3, buffering=1, enqueue=True, backtrace=False, diagnose=False, serialize=False, colorize=False, delay=False)
+logformat = "{time:YYYY-MM-DD HH:mm:ss.SSS}|{level: <7}|{message: <72}"
+
+log.add(sink=str('/config/logs/postprocess.log'), level=20, buffering=1, enqueue=True, backtrace=True, diagnose=True, serialize=False, colorize=False, delay=False, format=logformat)
 
 process_path = Path('/poll')
 mp4logpath = Path('/config/logs/mp4_automator').mkdir(parents=True, exist_ok=True)
