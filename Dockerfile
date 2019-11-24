@@ -27,7 +27,7 @@ RUN apk add --no-cache \
 RUN pip3 install --no-cache --upgrade pip
 RUN pip install --no-cache --upgrade pip
 
-RUN pip3 install setuptools wheel requests requests[security] requests-cache babelfish "guessit<2" "subliminal<2" qtfaststart gevent python-qbittorrent deluge-client loguru
+RUN pip3 install setuptools wheel requests requests[security] requests-cache babelfish "guessit<2" "subliminal<2" qtfaststart gevent python-qbittorrent deluge-client loguru tmdbsimple
 RUN pip install setuptools wheel requests requests[security] requests-cache babelfish "guessit<2" "subliminal<2" qtfaststart gevent python-qbittorrent deluge-client stevedore==1.19.1
 
 # As per https://github.com/mdhiggins/sickbeard_mp4_automator/issues/643
@@ -42,8 +42,14 @@ RUN rm /opt/mp4_automator/logging.ini
 RUN ln -s /config/logging.ini /opt/mp4_automator/logging.ini
 RUN ln -s /config/logs/mp4_automator /var/log/sickbeard_mp4_automator
 
-COPY poller /
-RUN chmod +x /poller
+COPY postprocess /
+RUN chmod ugo+x /postprocess
+
+COPY completetv.sh /
+RUN chmod ugo+x /completetv.sh
+
+COPY completemovies.sh /
+RUN chmod ugo+x /completemovies.sh
 
 # RUN rm /opt/mp4_automator/post_process/* -r
 # RUN mkdir /opt/mp4_automator/post_process/resources
@@ -52,4 +58,4 @@ RUN chmod +x /poller
 
 RUN chown 1000.1000 /opt/mp4_automator -R
 
-ENTRYPOINT ["/poller"]
+ENTRYPOINT ["/postprocess"]

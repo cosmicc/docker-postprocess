@@ -38,8 +38,12 @@ while True:
                         procfile = Path(fsplit[2])
                         procpath = Path(fsplit[3])
                         procfull = procpath / procfile
+                        if str(procpath) == '/downloads/complete/tv':
+                            configfile = '/config/autoProcessTV.ini'
+                        elif str(procpath) == '/downloads/complete/movies':
+                            configfile = '/config/autoProcessMOVIE.ini'
                         log.info(f'Processing Deluge download {str(procfile)}')
-                        cmd = ['/usr/bin/python3', '/opt/mp4_automator/manual.py', '-i', f'{procfull}', '-a', '-c', '/config/autoProcess.ini']
+                        cmd = ['/usr/bin/python3', '/opt/mp4_automator/manual.py', '-i', f'{procfull}', '-a', '-c', f'{configfile}']
                         log.debug(cmd)
                         process = subprocess.Popen(cmd)
                         result = process.wait()
