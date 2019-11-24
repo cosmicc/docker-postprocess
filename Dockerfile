@@ -55,6 +55,8 @@ RUN mkdir /opt/mp4_automator/post_process/resources
 
 COPY post_process.py /opt/mp4_automator/post_process
 
+RUN chmod ugo+x /opt/mp4_automator/post_process/post_process.py
+
 RUN chown 1000.1000 /opt/mp4_automator -R
 
 ENTRYPOINT ["/poller"]
