@@ -11,22 +11,16 @@ from loguru import logger as log
 os.setgid(int(os.environ['PGID']))
 os.setuid(int(os.environ['PUID']))
 
-log.add(sink=str('/config/logs/poller.log'), level=3, buffering=1, enqueue=True, backtrace=False, diagnose=False, serialize=False, colorize=False, delay=False)
+log.add(sink=str('/config/logs/postprocess.log'), level=3, buffering=1, enqueue=True, backtrace=False, diagnose=False, serialize=False, colorize=False, delay=False)
 
 process_path = Path('/poll')
 mp4logpath = Path('/config/logs/mp4_automator').mkdir(parents=True, exist_ok=True)
-
 
 if not process_path.exists():
     log.error('Poll directory does not exist!')
     exit(1)
 
 log.info('Poller is starting...')
-
-
-def report_ids(msg):
-    print('uid, gid = %d, %d, %s' % (os.getuid(), os.getgid(), msg))
-
 
 while True:
     try:
@@ -41,13 +35,17 @@ while True:
                         log.warning(f'Cannot parse process file contents ({str(file)})')
                         file.rename(file.with_suffix('.ignored'))
                     else:
-                        log.info(f'Processing Deluge download {fsplit[2]}')
-                        cmd = ['/opt/mp4_automator/delugePostProcess.py', f'{fsplit[1]}', f'{fsplit[2]}', f'{fsplit[3]}']
+                        procfile = Path(fsplit[2])
+                        procpath = Path(fsplit[3])
+                        procfull = procpath / procfile
+                        log.info(f'Processing Deluge download {str(procfile)}')
+                        cmd = ['/opt/mp4_automator/manual.py', '-i', f'{procfull}', '-a']
                         log.debug(cmd)
                         process = subprocess.Popen(cmd)
                         result = process.wait()
                         file.unlink()
                         skipsleep = True
+                        log.info(f'Finished Deluge Download {str(procfile)}')
                 elif file.suffix == '.sonarr':
                     log.info(f'Processing Sonarr postprocess')
                     fcontents = file.read_text()
@@ -153,7 +151,6 @@ while True:
                     subprocess.Popen(cmd).wait()
                     file.unlink()
                     skipsleep = True
-                log.info(f'Finished Processing of {str(file)}')
     except:
         log.exception('Error in poller script:')
         exit(1)
