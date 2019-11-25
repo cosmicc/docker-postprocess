@@ -7,13 +7,17 @@ from sys import exit
 from time import sleep
 
 from loguru import logger as log
+from deluge_client import DelugeRPCClient
+
 
 os.setgid(int(os.environ['PGID']))
 os.setuid(int(os.environ['PUID']))
+deluge_username = os.environ['DELU?GEUN']
+deluge_password = os.environ['DELUGEPW']
 
 logformat = "{time:YYYY-MM-DD HH:mm:ss.SSS}|{level: <7}|{message: <72}"
 
-log.add(sink=str('/config/logs/postprocess.log'), level=20, buffering=1, enqueue=True, backtrace=True, diagnose=True, serialize=False, colorize=False, delay=False, format=logformat)
+log.add(sink=str('/config/logs/postprocess.log'), level=3, buffering=1, enqueue=True, backtrace=True, diagnose=True, serialize=False, colorize=False, delay=False, format=logformat)
 
 process_path = Path('/poll')
 mp4logpath = Path('/config/logs/mp4_automator').mkdir(parents=True, exist_ok=True)
@@ -23,6 +27,13 @@ if not process_path.exists():
     exit(1)
 
 log.info('Postprocess is starting')
+
+client = DelugeRPCClient('172.25.1.13', 58846, deluge_username, deluge_password)
+client.connect()
+if client.connected:
+    log.debug('Connected to deluge server')
+else:
+    log.error('Cannot connect to deluge server!')
 
 while True:
     try:
@@ -39,6 +50,7 @@ while True:
                     else:
                         procfile = Path(fsplit[2])
                         procpath = Path(fsplit[3])
+                        downloadid = fsplit[1]
                         procfull = procpath / procfile
                         if str(procpath) == '/downloads/complete/tv':
                             configfile = '/config/autoProcessTV.ini'
@@ -50,8 +62,14 @@ while True:
                         process = subprocess.Popen(cmd)
                         result = process.wait()
                         if result == 0:
-                            log.info(f'Conversion returned success')
+                            log.info(f'Conversion returned success, removing from deluge')
                             file.unlink()
+                            try:
+                                client.call('core.remove_torrent', downloadid, True)
+                            except:
+                                log.exception(f'Deluge removal for {str(procfile)} failed!')
+                            else:
+                                log.debug(f'Deluge removal for {str(procfile)} success')
                         else:
                             log.error(f'Error ({result}) returned in conversion')
                             file.rename(file.with_suffix('.failed'))
