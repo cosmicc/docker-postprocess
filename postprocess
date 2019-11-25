@@ -26,7 +26,7 @@ deluge_port = int(config.get("deluge", "port"))
 deluge_username = config.get("deluge", "username")
 deluge_password = config.get("deluge", "password")
 
-logformat = "{time:YYYY-MM-DD HH:mm:ss.SSS}|{level: <7}|{message: <72}"
+logformat = "{time:YYYY-MM-DD HH:mm:ss.SSS}|{level: <7}| {message: <72}"
 
 if loglevel == "TRACE":
     lev = 5
@@ -58,7 +58,7 @@ while True:
     try:
         skipsleep = False
         for file in process_path.iterdir():
-            log.info(f'start of {str(file)}')
+            log.debug(f'Checking {str(file)}')
             if file.suffix != '.ignored' and file.suffix != '.failed':
                 if file.suffix == '.deluge':
                     fcontents = file.read_text()
