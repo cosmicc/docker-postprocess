@@ -22,7 +22,7 @@ logpath = Path(config.get("general", "logpath"))
 process_path = Path(config.get("general", "pollpath"))
 mp4logpath = Path(config.get("general", "mp4logpath")).mkdir(parents=True, exist_ok=True)
 deluge_host = config.get("deluge", "host")
-deluge_port = config.get("deluge", "port")
+deluge_port = int(config.get("deluge", "port"))
 deluge_username = config.get("deluge", "username")
 deluge_password = config.get("deluge", "password")
 
