@@ -2,25 +2,44 @@
 
 import os
 import subprocess
+from configparser import ConfigParser
 from pathlib import Path
 from sys import exit
 from time import sleep
 
-from loguru import logger as log
 from deluge_client import DelugeRPCClient
-
+from loguru import logger as log
 
 os.setgid(int(os.environ['PGID']))
 os.setuid(int(os.environ['PUID']))
-deluge_username = os.environ['DELU?GEUN']
-deluge_password = os.environ['DELUGEPW']
+
+configfile = "/config/postprocess.ini"
+config = ConfigParser()
+config.read(configfile)
+
+loglevel = config.get("general", "loglevel")
+logpath = Path(config.get("general", "logpath"))
+process_path = Path(config.get("general", "pollpath"))
+mp4logpath = Path(config.get("general", "mp4logpath")).mkdir(parents=True, exist_ok=True)
+deluge_host = config.get("deluge", "host")
+deluge_port = config.get("deluge", "port")
+deluge_username = config.get("deluge", "username")
+deluge_password = config.get("deluge", "password")
 
 logformat = "{time:YYYY-MM-DD HH:mm:ss.SSS}|{level: <7}|{message: <72}"
 
-log.add(sink=str('/config/logs/postprocess.log'), level=3, buffering=1, enqueue=True, backtrace=True, diagnose=True, serialize=False, colorize=False, delay=False, format=logformat)
+if loglevel == "TRACE":
+    lev = 5
+elif loglevel == "DEBUG":
+    lev = 10
+elif loglevel == "INFO":
+    lev = 20
+elif loglevel == "WARNING":
+    lev = 30
+else:
+    lev = 40
 
-process_path = Path('/poll')
-mp4logpath = Path('/config/logs/mp4_automator').mkdir(parents=True, exist_ok=True)
+log.add(sink=str(logpath), level=lev, buffering=1, enqueue=True, backtrace=True, diagnose=True, serialize=False, colorize=False, delay=False, format=logformat)
 
 if not process_path.exists():
     log.error('Poll directory does not exist!')
@@ -28,7 +47,7 @@ if not process_path.exists():
 
 log.info('Postprocess is starting')
 
-client = DelugeRPCClient('172.25.1.13', 58846, deluge_username, deluge_password)
+client = DelugeRPCClient(deluge_host, deluge_port, deluge_username, deluge_password)
 client.connect()
 if client.connected:
     log.debug('Connected to deluge server')
