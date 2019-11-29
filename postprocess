@@ -72,11 +72,21 @@ while True:
                         log.debug(f'Process File: {str(procfile)}')
                         procpath = procfull.parent
                         log.debug(f'Process File Path: {str(procpath)}')
+                        log.info(f'Starting commercial skip detection for: {str(procpath)}')
+                        cmd = ['/usr/local/bin/comskip', '--threads=4', '-t', '--ini=/config/comskip.ini', f'{procfull}']
+                        log.debug(f'cmd: {cmd}')
+                        process = subprocess.Popen(cmd)
+                        result = process.wait()
+                        if result == 0:
+                            log.info(f'Comskip returned success')
+                            file.unlink()
+                        else:
+                            log.error(f'Error ({result}) returned in comskip')
                         configfile = '/config/autoProcessDVR.ini'
-                        log.debug(f'Using config file: {configfile}')
+                        log.debug(f'Using conversion config file: {configfile}')
                         log.info(f'Starting processing live tv dvr {str(procfile)}')
                         cmd = ['/usr/bin/python3', '/opt/mp4_automator/manual.py', '-i', f'{procfull}', '-a', '-c', f'{configfile}']
-                        log.debug(cmd)
+                        log.debug(f'cmd: {cmd}')
                         process = subprocess.Popen(cmd)
                         result = process.wait()
                         if result == 0:
@@ -106,7 +116,7 @@ while True:
                             configfile = '/config/autoProcessTV.ini'
                         elif str(procpath) == '/downloads/complete/movies':
                             configfile = '/config/autoProcessMOVIE.ini'
-                        log.debug(f'Using config file: {configfile}')
+                        log.debug(f'Using conversion config file: {configfile}')
                         log.info(f'Starting processing deluge download {str(procfile)}')
                         cmd = ['/usr/bin/python3', '/opt/mp4_automator/manual.py', '-i', f'{procfull}', '-a', '-c', f'{configfile}']
                         log.debug(cmd)
