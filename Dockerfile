@@ -53,6 +53,9 @@ RUN cd /tmp/ffmpeg && \
   --enable-avresample \
   --enable-libfreetype \
   --enable-openssl \
+  --enable-libavutil \
+  --enable-libavformat \
+  --enable-libavcodec \
   --disable-debug \
   --disable-doc \
   --disable-ffplay \
