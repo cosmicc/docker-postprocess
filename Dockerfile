@@ -52,10 +52,11 @@ RUN apk --no-cache add python ffmpeg tzdata bash \
 && cd Comskip && ./autogen.sh && ./configure && make && make install \
 && wget -O /opt/PlexComskip.py https://raw.githubusercontent.com/ekim1337/PlexComskip/master/PlexComskip.py \
 && ln -s /config/PlexComskip.conf /opt/PlexComskip.conf \
+&& ln -s /config/comskip.ini /opt/comskip.ini \
 && apk del builddeps \
 && rm -rf /var/cache/apk/* /tmp/* /tmp/.[!.]*
 
-COPY --from=plexinc/pms-docker /usr/lib/plexmediaserver/Resources/comskip.ini /opt/comskip.ini
+# COPY --from=plexinc/pms-docker /usr/lib/plexmediaserver/Resources/comskip.ini /opt/comskip.ini
 
 # Main Scripts
 COPY postprocess /
