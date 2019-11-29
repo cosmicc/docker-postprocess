@@ -9,7 +9,7 @@ ARG LD_LIBRARY_PATH=/opt/ffmpeg/lib
 ARG MAKEFLAGS="-j4"
 
 # FFmpeg build dependencies.
-RUN apk add --update build-base cmake freetype-dev lame-dev libogg-dev libass libass-dev libvpx-dev libvorbis-dev libwebp-dev libtheora-dev libtool openssl opus-dev perl pkgconf pkgconfig python rtmpdump-dev wget x264-dev x265-dev yasm git
+RUN apk add --update --virtual=builddeps autoconf automake libtool build-base tzdata cmake freetype-dev lame-dev libogg-dev libass libass-dev libvpx-dev libvorbis-dev libwebp-dev libtheora-dev libtool openssl opus-dev perl pkgconf pkgconfig python rtmpdump-dev wget x264-dev x265-dev yasm git
 
 # Install fdk-aac from testing.
 RUN echo http://dl-cdn.alpinelinux.org/alpine/edge/testing >> /etc/apk/repositories && \
@@ -78,7 +78,7 @@ RUN rm -rf /var/cache/apk/* /tmp/*
 FROM alpine:3.8
 ENV PATH=/opt/ffmpeg/bin:$PATH
 
-RUN apk add --update ca-certificates openssl pcre lame libogg libass libvpx libvorbis libwebp libtheora opus rtmpdump x264-dev x265-dev
+RUN apk add --no-cache ca-certificates openssl pcre lame libogg libass libvpx libvorbis libwebp libtheora opus rtmpdump x264-dev x265-dev
 
 COPY --from=build /opt/ffmpeg /opt/ffmpeg
 COPY --from=build /opt/ffmpeg/lib64/libaom.so.0 /usr/lib/libaom.so.0
@@ -92,7 +92,7 @@ VOLUME /downloads
 VOLUME /transcode
 
 # Install Alpine packages
-RUN apk add --no-cache --virtual=builddeps autoconf automake libtool git wget tar build-base tzdata bash python3 py3-setuptools python3-dev libffi-dev gcc musl-dev openssl-dev curl
+RUN apk add --no-cache git wget tar bash python3 py3-setuptools python3-dev libffi-dev gcc musl-dev openssl-dev curl
 # python2 py2-pip py2-setuptools python2-dev
 
 # Install python and packages
