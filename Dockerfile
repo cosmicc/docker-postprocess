@@ -65,7 +65,8 @@ RUN cd /tmp/ffmpeg && \
   --prefix="${PREFIX}" && \
   make && make install && make distclean
 
-ARG ffmpeg_CFLAGS=/opt/ffmpeg
+ARG ffmpeg_CFLAGS="-I${PREFIX}/include"
+ARG ffmpeg_LIBS="-L${PREFIX}/lib"
 
 # Install Comskip
 RUN cd /tmp && wget http://prdownloads.sourceforge.net/argtable/argtable2-13.tar.gz \
