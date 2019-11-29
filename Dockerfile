@@ -43,7 +43,7 @@ RUN ln -s /config/logging.ini /opt/mp4_automator/logging.ini
 RUN ln -s /config/logs/mp4_automator /var/log/sickbeard_mp4_automator
 
 # Install Comskip
-RUN apk --no-cache add python ffmpeg tzdata bash
+RUN apk --no-cache add python ffmpeg tzdata bash \
 && apk --no-cache add --virtual=builddeps autoconf automake libtool git ffmpeg-dev wget tar build-base \
 && wget http://prdownloads.sourceforge.net/argtable/argtable2-13.tar.gz \
 && tar xzf argtable2-13.tar.gz \
