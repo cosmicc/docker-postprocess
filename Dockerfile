@@ -9,7 +9,7 @@ ARG LD_LIBRARY_PATH=/opt/ffmpeg/lib
 ARG MAKEFLAGS="-j4"
 
 # FFmpeg build dependencies.
-RUN apk add --update build-base cmake freetype-dev lame-dev libogg-dev libass libass-dev libvpx-dev libvorbis-dev libwebp-dev libtheora-dev libtool openssl opus-dev perl pkgconf pkgconfig python rtmpdump-dev wget x264-dev x265-dev yasm
+RUN apk add --update build-base cmake freetype-dev lame-dev libogg-dev libass libass-dev libvpx-dev libvorbis-dev libwebp-dev libtheora-dev libtool openssl opus-dev perl pkgconf pkgconfig python rtmpdump-dev wget x264-dev x265-dev yasm git
 
 # Install fdk-aac from testing.
 RUN echo http://dl-cdn.alpinelinux.org/alpine/edge/testing >> /etc/apk/repositories && \
