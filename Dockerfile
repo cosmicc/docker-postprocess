@@ -1,4 +1,4 @@
-FROM alpine:latest as build
+FROM alpine:3.8 as build
 
 ARG FFMPEG_VERSION=ffmpeg-snapshot.tar.bz2
 ARG AOM_VERSION=master
@@ -65,7 +65,7 @@ RUN cd /tmp/ffmpeg && \
 # Cleanup.
 RUN rm -rf /var/cache/apk/* /tmp/*
 
-FROM alpine:latest
+FROM alpine:3.8
 ENV PATH=/opt/ffmpeg/bin:$PATH
 
 RUN apk add --update ca-certificates openssl pcre lame libogg libass libvpx libvorbis libwebp libtheora opus rtmpdump x264-dev x265-dev
