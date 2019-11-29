@@ -25,6 +25,11 @@ RUN mkdir -p /tmp/aom && cd /tmp/ && \
   cmake -DCMAKE_INSTALL_PREFIX="${PREFIX}" -DBUILD_SHARED_LIBS=1 .. && \
   make && make install
 
+# Install Argtable
+RUN cd /tmp && wget http://prdownloads.sourceforge.net/argtable/argtable2-13.tar.gz \
+&& tar xzf argtable2-13.tar.gz \
+&& cd argtable2-13/ && ./configure && make && make install
+
 # Get ffmpeg source.
 RUN cd /tmp/ && \
   wget https://ffmpeg.org/releases/${FFMPEG_VERSION} && \
@@ -66,14 +71,10 @@ RUN cd /tmp/ffmpeg && \
   make && make install && make distclean
 
 ARG ffmpeg_CFLAGS="-I${PREFIX}/include"
-ARG ffmpeg_LDFLAGS="-L${PREFIX}/lib"
-ARG ffmpeg_LIBS="-lpthread -lm"
+ARG ffmpeg_LIBS="-L${PREFIX}/lib"
 
 # Install Comskip
-RUN cd /tmp && wget http://prdownloads.sourceforge.net/argtable/argtable2-13.tar.gz \
-&& tar xzf argtable2-13.tar.gz \
-&& cd argtable2-13/ && ./configure && make && make install \
-&& cd /tmp && git clone git://github.com/erikkaashoek/Comskip.git \
+RUN cd /tmp && git clone git://github.com/erikkaashoek/Comskip.git \
 && cd Comskip && ./autogen.sh && ./configure && make && make install
 
 # Cleanup.
