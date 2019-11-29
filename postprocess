@@ -73,7 +73,7 @@ while True:
                         procpath = procfull.parent
                         log.debug(f'Process File Path: {str(procpath)}')
                         log.info(f'Starting commercial skip detection for: {str(procpath)}')
-                        cmd = ['/usr/local/bin/comskip', '--threads=4', '-t', '--ini=/config/comskip.ini', f'{procfull}']
+                        cmd = ['/usr/local/bin/comskip', '--threads=4', '-t', '-q', '--ini=/config/comskip.ini', f'{str(procfull)}']
                         log.debug(f'cmd: {cmd}')
                         process = subprocess.Popen(cmd)
                         result = process.wait()
