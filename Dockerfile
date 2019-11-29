@@ -65,6 +65,13 @@ RUN cd /tmp/ffmpeg && \
   --prefix="${PREFIX}" && \
   make && make install && make distclean
 
+# Install Comskip
+RUN cd /tmp && wget http://prdownloads.sourceforge.net/argtable/argtable2-13.tar.gz \
+&& tar xzf argtable2-13.tar.gz \
+&& cd argtable2-13/ && ./configure && make && make install \
+&& cd /tmp && git clone git://github.com/erikkaashoek/Comskip.git \
+&& cd Comskip && ./autogen.sh && ./configure && make && make install
+
 # Cleanup.
 RUN rm -rf /var/cache/apk/* /tmp/*
 
@@ -103,13 +110,6 @@ ONBUILD RUN pip3 install stevedore==1.19.1
 RUN git clone https://github.com/mdhiggins/sickbeard_mp4_automator.git /opt/mp4_automator
 
 RUN ln -s /config/autoProcess.ini /opt/mp4_automator/autoProcess.ini && rm /opt/mp4_automator/logging.ini && ln -s /config/logging.ini /opt/mp4_automator/logging.ini && ln -s /config/logs/mp4_automator /var/log/sickbeard_mp4_automator
-
-# Install Comskip
-RUN cd /tmp && wget http://prdownloads.sourceforge.net/argtable/argtable2-13.tar.gz \
-&& tar xzf argtable2-13.tar.gz \
-&& cd argtable2-13/ && ./configure && make && make install \
-&& cd /tmp && git clone git://github.com/erikkaashoek/Comskip.git \
-&& cd Comskip && ./autogen.sh && ./configure && make && make install
 
 # COPY --from=plexinc/pms-docker /usr/lib/plexmediaserver/Resources/comskip.ini /opt/comskip.ini
 
