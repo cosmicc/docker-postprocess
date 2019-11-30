@@ -2,9 +2,9 @@
 
 import os
 import subprocess
+import sys
 from configparser import ConfigParser
 from pathlib import Path
-from sys import exit, stdout
 from time import sleep
 
 from deluge_client import DelugeRPCClient
@@ -51,7 +51,7 @@ else:
     logf = logformat
 
 log.add(sink=str(logpath), level=lev, buffering=1, enqueue=True, backtrace=True, diagnose=True, serialize=False, colorize=False, delay=False, format=logf)
-log.add(sink=stdout, level=lev, backtrace=True, diagnose=True, serialize=False, colorize=False, delay=False, format=logf)
+log.add(sys.stdout, level=lev, backtrace=True, diagnose=True, serialize=False, colorize=False, delay=False, format=logf)
 
 comskip_error = ('Success', 'Did not modify original', 'Sanity Check Failed', 'Exception Handled', 'Failed')
 
@@ -167,4 +167,4 @@ while True:
             sleep(30)
     except:
         log.exception('Error in postrocess main routine:')
-        exit(1)
+        os._exit(1)
