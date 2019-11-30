@@ -32,7 +32,7 @@ RUN cd /tmp && git clone git://github.com/erikkaashoek/Comskip.git \
 && ln -s /config/comskip.ini /opt/comskip.ini
 
 # Cleanup
-RUN apk del builddeps build-base ffmpeg gcc \
+RUN apk del builddeps \
 && rm -rf /var/cache/apk/* /tmp/* /tmp/.[!.]*
 
 # Main Scripts
