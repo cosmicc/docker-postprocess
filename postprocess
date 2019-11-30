@@ -10,10 +10,12 @@ from time import sleep
 from deluge_client import DelugeRPCClient
 from loguru import logger as log
 
+__name++ = 'POSTPROC'
+
 os.setgid(int(os.environ['PGID']))
 os.setuid(int(os.environ['PUID']))
 
-configfile = "/config/postprocess.ini"
+configfile = "/config/PostProcess.conf"
 config = ConfigParser()
 config.read(configfile)
 
@@ -74,8 +76,9 @@ while True:
                 file.rename(file.with_suffix('.ignored'))
             else:
                 procfull = Path(fcontents.strip())
-                log.debug(f'Process full filepath: {str(procfull)}')
                 procfile = procfull.name
+                log.info(f'* Starting TVDVR file to process: {str(procfile)}')
+                log.debug(f'Process full filepath: {str(procfull)}')
                 log.debug(f'Process File: {str(procfile)}')
                 procpath = procfull.parent
                 log.debug(f'Process File Path: {str(procpath)}')
@@ -88,21 +91,21 @@ while True:
                     log.error(f'Error ({comskip_error[result]}) returned from comskip')
                     file.rename(file.with_suffix('.failed'))
                 else:
-                    log.info(f'Comskip returned ({comskip_error[result]})')
+                    log.success(f'Comskip finished ({comskip_error[result]})')
                     configfile = '/config/autoProcessDVR.ini'
                     log.debug(f'Using conversion config file: {configfile}')
-                    log.info(f'Starting processing live tv dvr {str(procfile)}')
+                    log.info(f'Starting mp4 conversion for: {str(procfile)}')
                     cmd = ['/usr/bin/python3', '/opt/mp4_automator/manual.py', '-i', f'{procfull}', '-a', '-c', f'{configfile}']
                     log.debug(f'cmd: {cmd}')
                     process = subprocess.Popen(cmd)
                     result = process.wait()
                     if result == 0:
-                        log.info(f'Conversion returned success')
+                        log.success(f'Conversion returned success')
                         file.unlink()
                     else:
                         log.error(f'Error ({result}) returned in conversion')
                         file.rename(file.with_suffix('.failed'))
-                    log.info(f'Finished processing live tv dvr {str(procfile)}')
+                    log.info(f'* Finished TVDVR file proccessing: {str(procfile)}')
 
         elif len(delugelist) > 0:
             file = delugelist[0]
@@ -113,6 +116,7 @@ while True:
                 file.rename(file.with_suffix('.ignored'))
             else:
                 procfile = Path(fsplit[2])
+                log.info(f'* Starting DELUGE file to process: {str(procfile)}')
                 log.debug(f'Process File: {str(procfile)}')
                 procpath = Path(fsplit[3])
                 log.debug(f'Process File Path: {str(procpath)}')
@@ -125,27 +129,27 @@ while True:
                 elif str(procpath) == '/downloads/complete/movies':
                     configfile = '/config/autoProcessMOVIE.ini'
                 log.debug(f'Using conversion config file: {configfile}')
-                log.info(f'Starting processing deluge download {str(procfile)}')
+                log.info(f'Starting mp4 conversion for: {str(procfile)}')
                 cmd = ['/usr/bin/python3', '/opt/mp4_automator/manual.py', '-i', f'{procfull}', '-a', '-c', f'{configfile}']
                 log.debug(cmd)
                 process = subprocess.Popen(cmd)
                 result = process.wait()
                 if result == 0:
-                    log.info(f'Conversion returned success, removing from deluge')
+                    log.success(f'Conversion returned success')
                     file.unlink()
                     try:
                         client.call('core.remove_torrent', downloadid, True)
                     except:
                         log.exception(f'Deluge removal for {str(procfile)} failed!')
                     else:
-                        log.debug(f'Deluge removal for {str(procfile)} success')
+                        log.success(f'Deluge removal for {str(procfile)} success')
                     torrentfile = Path('/downloads/torrents') / (str(procfile) + '.torrent')
                     log.debug(f'Removing torrent file: {str(torrentfile)}')
                     torrentfile.unlink()
                 else:
                     log.error(f'Error ({result}) returned in conversion')
                     file.rename(file.with_suffix('.failed'))
-                log.info(f'Finished processing deluge download {str(procfile)}')
+                log.info(f'* Finished DELUGE file proccessing: {str(procfile)}')
         else:
             sleep(30)
     except:
