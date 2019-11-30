@@ -29,9 +29,9 @@ deluge_username = config.get("deluge", "username")
 deluge_password = config.get("deluge", "password")
 
 log.remove()
-logging.level("STARTUP", no=20, color="<fg 39>", icon="¤")
-logging.level("START", no=20, color="<fg 39>", icon="¤")
-logging.level("FINISH", no=20, color="<fg 39>", icon="¤")
+log.level("STARTUP", no=20, color="<fg 39>", icon="¤")
+log.level("START", no=20, color="<fg 39>", icon="¤")
+log.level("FINISH", no=20, color="<fg 39>", icon="¤")
 
 logformat = "{time:YYYY-MM-DD HH:mm:ss.SSS}|{name: <8}|{level: <7}| {message: <72}"
 debuglogformat = "{time:YYYY-MM-DD HH:mm:ss.SSS}|{name}:{line}:{function}|{level: <7}| {message: <72}"
@@ -154,10 +154,10 @@ while True:
                     except:
                         log.exception(f'Deluge removal for {str(procfile)} failed!')
                     else:
-                        log.success(f'Deluge removal for {str(procfile)} success')
+                        log.info(f'Deluge removal for {str(procfile)} success')
                     torrentfile = Path('/downloads/torrents') / (str(procfile) + '.torrent')
                     if torrentfile.exists():
-                        log.debug(f'Removing torrent file: {str(torrentfile)}')
+                        log.info(f'Removing torrent file: {str(torrentfile)}')
                         torrentfile.unlink()
                     else:
                         log.warning(f'No torrent file to remove: {str(torrentfile)}')

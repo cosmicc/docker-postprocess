@@ -54,9 +54,6 @@ if not os.path.exists(os.path.dirname(LOG_FILE_PATH)):
     os.makedirs(os.path.dirname(LOG_FILE_PATH))
 
 logging.remove()
-logging.level("STARTUP", no=20, color="<fg 39>", icon="¤")
-logging.level("START", no=20, color="<fg 39>", icon="¤")
-logging.level("FINISH", no=20, color="<fg 39>", icon="¤")
 
 logformat = "{time:YYYY-MM-DD HH:mm:ss.SSS}|{name: <8}|{level: <7}| {message: <72}"
 debuglogformat = "{time:YYYY-MM-DD HH:mm:ss.SSS}|{name}:{line}:{function}|{level: <7}| {message: <72}"
