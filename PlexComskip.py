@@ -75,7 +75,7 @@ def sizeof_fmt(num, suffix='B'):
 
 if len(sys.argv) < 2:
     print('Usage: PlexComskip.py input-file.mkv')
-    sys.exit(1)
+    os._exit(1)
 
 
 # Clean up after ourselves and exit.
@@ -93,7 +93,7 @@ def cleanup_and_exit(temp_dir, keep_temp=False, exit_code=CONVERSION_SUCCESS):
 
     # Exit cleanly.
     logging.info('Done processing!')
-    sys.exit(exit_code)
+    os._exit(exit_code)
 
 
 # On to the actual work.
