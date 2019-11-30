@@ -194,7 +194,8 @@ try:
                     continue
 
                 segment_files.append(segment_file_name)
-                segment_list_file.write(b'file %s\n' % segment_file_name)
+                sfn = f'file {segment_file_name}\n'.encode()
+                segment_list_file.write(sfn)
 
 except:
     logging.exception('Something went wrong during splitting:')
