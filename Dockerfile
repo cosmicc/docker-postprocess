@@ -8,7 +8,7 @@ VOLUME /transcode
 
 
 # Install apk packages
-RUN apk add --no-cache --virtual=builddeps git curl python3 py3-setuptools python3-dev libffi-dev gcc musl-dev openssl-dev autoconf automake libtool git ffmpeg-dev wget tar build-base ffmpeg tzdata bash
+RUN apk add --no-cache git curl python3 py3-setuptools python3-dev libffi-dev gcc musl-dev openssl-dev autoconf automake libtool git ffmpeg-dev wget tar builddeps build-base ffmpeg tzdata bash
 
 # Install python and packages
 RUN pip3 install --no-cache --upgrade pip
