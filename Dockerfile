@@ -14,7 +14,7 @@ RUN apk add --no-cache bash git curl wget tar python3 py3-setuptools python3-dev
 RUN pip3 install --no-cache --upgrade pip setuptools wheel requests requests[security] requests-cache babelfish "guessit<2" "subliminal<2" qtfaststart gevent python-qbittorrent deluge-client loguru tmdbsimple
 
 # As per https://github.com/mdhiggins/sickbeard_mp4_automator/issues/643
-RUN pip3 uninstall stevedore
+RUN pip3 uninstall -y stevedore
 RUN pip3 install stevedore==1.19.1
 
 # Install MP4 Automator
