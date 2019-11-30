@@ -29,7 +29,7 @@ RUN git clone https://github.com/mdhiggins/sickbeard_mp4_automator.git /opt/mp4_
 RUN ln -s /config/autoProcess.ini /opt/mp4_automator/autoProcess.ini && rm /opt/mp4_automator/logging.ini && ln -s /config/logging.ini /opt/mp4_automator/logging.ini && ln -s /config/logs/mp4_automator /var/log/sickbeard_mp4_automator
 
 # Install Comskip
-RUN apk --no-cache add python ffmpeg tzdata bash \
+RUN apk --no-cache add ffmpeg tzdata bash \
 && apk --no-cache add --virtual=builddeps autoconf automake libtool git ffmpeg-dev wget tar build-base \
 && cd /tmp && wget http://prdownloads.sourceforge.net/argtable/argtable2-13.tar.gz \
 && tar xzf argtable2-13.tar.gz \
