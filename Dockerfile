@@ -6,13 +6,12 @@ VOLUME /poll
 VOLUME /downloads
 VOLUME /transcode
 
-
 # Install apk packages
-RUN apk add --no-cache git curl python3 py3-setuptools python3-dev libffi-dev gcc musl-dev openssl-dev autoconf automake libtool git ffmpeg-dev wget tar builddeps build-base ffmpeg tzdata bash
+RUN apk add --no-cache --virtual=builddeps gcc autoconf automake libtool build-base ffmpeg
+RUN apk add --no-cache bash git curl wget tar python3 py3-setuptools python3-dev libffi-dev musl-dev openssl-dev ffmpeg-dev tzdata
 
 # Install python and packages
-RUN pip3 install --no-cache --upgrade pip
-RUN pip3 install --no-cache setuptools wheel requests requests[security] requests-cache babelfish "guessit<2" "subliminal<2" qtfaststart gevent python-qbittorrent deluge-client loguru tmdbsimple
+RUN pip3 install --no-cache --upgrade pip setuptools wheel requests requests[security] requests-cache babelfish "guessit<2" "subliminal<2" qtfaststart gevent python-qbittorrent deluge-client loguru tmdbsimple
 
 # As per https://github.com/mdhiggins/sickbeard_mp4_automator/issues/643
 ONBUILD RUN pip3 uninstall stevedore
@@ -33,7 +32,7 @@ RUN cd /tmp && git clone git://github.com/erikkaashoek/Comskip.git \
 && ln -s /config/comskip.ini /opt/comskip.ini
 
 # Cleanup
-RUN apk del builddeps build-base ffmpeg gcc \
+RUN apk del builddeps \
 && rm -rf /var/cache/apk/* /tmp/* /tmp/.[!.]*
 
 # Main Scripts
