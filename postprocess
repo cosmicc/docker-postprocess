@@ -4,8 +4,7 @@ import os
 import subprocess
 from configparser import ConfigParser
 from pathlib import Path
-from sys import exit
-from sys import stdout
+from sys import exit, stdout
 from time import sleep
 
 from deluge_client import DelugeRPCClient
@@ -155,8 +154,11 @@ while True:
                     else:
                         log.success(f'Deluge removal for {str(procfile)} success')
                     torrentfile = Path('/downloads/torrents') / (str(procfile) + '.torrent')
-                    log.debug(f'Removing torrent file: {str(torrentfile)}')
-                    torrentfile.unlink()
+                    if torrentfile.exists():
+                        log.debug(f'Removing torrent file: {str(torrentfile)}')
+                        torrentfile.unlink()
+                    else:
+                        log.warning(f'No torrent file to remove: {str(torrentfile)}')
                 else:
                     log.error(f'Error ({result}) returned in conversion')
                     file.rename(file.with_suffix('.failed'))
