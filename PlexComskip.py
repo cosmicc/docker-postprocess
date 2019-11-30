@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import ConfigParser
+from configparser import ConfigParser
 import os
 import shutil
 import subprocess
