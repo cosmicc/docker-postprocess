@@ -63,11 +63,11 @@ RUN chmod ugo+x /opt/PlexComskip.py
 COPY postprocess /
 RUN chmod ugo+x /postprocess
 
-COPY completetv.sh /
-RUN chmod ugo+x /completetv.sh
+# COPY completetv.sh /
+# RUN chmod ugo+x /completetv.sh
 
-COPY completemovies.sh /
-RUN chmod ugo+x /completemovies.sh
+# COPY completemovies.sh /
+# RUN chmod ugo+x /completemovies.sh
 
 # RUN rm /opt/mp4_automator/post_process/* -r
 # RUN mkdir /opt/mp4_automator/post_process/resources
