@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from configparser import ConfigParser
+import configparser
 import os
 import shutil
 import subprocess
@@ -17,7 +17,7 @@ if not os.path.exists(config_file_path):
     print('Make a copy of PlexConfig.conf.example named PlexConfig.conf, modify as necessary, and place in the same directory as this script.')
     sys.exit(1)
 
-config = ConfigParser.SafeConfigParser({
+config = configparser.SafeConfigParser({
     'comskip-ini-path': os.path.join(os.path.dirname(os.path.realpath(__file__)), 'comskip.ini'),
     'temp-root': tempfile.gettempdir(),
     'comskip-root': tempfile.gettempdir(),
