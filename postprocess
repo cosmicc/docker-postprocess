@@ -53,7 +53,7 @@ else:
     logf = logformat
 
 log.add(sink=str(logpath), level=lev, buffering=1, enqueue=True, backtrace=True, diagnose=True, serialize=False, colorize=False, delay=False, format=logf)
-log.add(sys.stdout, level=lev, backtrace=True, diagnose=True, serialize=False, colorize=False, delay=False, format=logf)
+log.add(sys.stderr, level=lev, backtrace=True, diagnose=True, serialize=False, colorize=False, delay=False, format=logf)
 
 comskip_error = ('Success', 'Did not modify original', 'Sanity Check Failed', 'Exception Handled', 'Failed')
 

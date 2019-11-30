@@ -75,7 +75,7 @@ else:
     logf = logformat
 
 logging.add(sink=LOG_FILE_PATH, level=lev, buffering=1, enqueue=True, backtrace=True, diagnose=True, serialize=False, colorize=False, delay=False, format=logf)
-logging.add(sys.stdout, level=lev, backtrace=True, diagnose=True, serialize=False, colorize=False, delay=False, format=logf)
+logging.add(sys.stderr, level=lev, backtrace=True, diagnose=True, serialize=False, colorize=False, delay=False, format=logf)
 
 
 # Human-readable bytes.
