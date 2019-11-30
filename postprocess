@@ -58,7 +58,6 @@ while True:
     try:
         skipsleep = False
         for file in process_path.iterdir():
-            log.debug(f'Checking {str(file)}')
             if file.suffix != '.ignored' and file.suffix != '.failed':
                 if file.suffix == '.tvdvr':
                     fcontents = file.read_text()
