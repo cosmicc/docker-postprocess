@@ -21,14 +21,13 @@ config.read(configfile)
 
 loglevel = config.get("general", "loglevel")
 logpath = Path(config.get("general", "logpath"))
+logformat = config.get("general", "logformat")
 process_path = Path(config.get("general", "pollpath"))
 mp4logpath = Path(config.get("general", "mp4logpath")).mkdir(parents=True, exist_ok=True)
 deluge_host = config.get("deluge", "host")
 deluge_port = int(config.get("deluge", "port"))
 deluge_username = config.get("deluge", "username")
 deluge_password = config.get("deluge", "password")
-
-logformat = "{time:YYYY-MM-DD HH:mm:ss.SSS}|{level: <7}| {message: <72}"
 
 if loglevel == "TRACE":
     lev = 5
