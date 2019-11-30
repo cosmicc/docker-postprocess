@@ -10,7 +10,7 @@ from time import sleep
 from deluge_client import DelugeRPCClient
 from loguru import logger as log
 
-__name++ = 'POSTPROC'
+__name__ = 'POSTPROC'
 
 os.setgid(int(os.environ['PGID']))
 os.setuid(int(os.environ['PUID']))
