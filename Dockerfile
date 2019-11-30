@@ -11,7 +11,7 @@ RUN apk add --no-cache --virtual=builddeps gcc autoconf automake libtool build-b
 RUN apk add --no-cache bash git curl wget tar python3 py3-setuptools python3-dev libffi-dev musl-dev openssl-dev ffmpeg-dev tzdata
 
 # Install python and packages
-RUN pip3 install --no-cache --upgrade pip setuptools wheel requests requests[security] requests-cache babelfish guessit "subliminal<2" qtfaststart gevent python-qbittorrent deluge-client loguru tmdbsimple
+RUN pip3 install --no-cache --upgrade pip setuptools wheel requests requests[security] requests-cache babelfish "guessit<2" "subliminal<2" qtfaststart gevent python-qbittorrent deluge-client loguru tmdbsimple
 
 # As per https://github.com/mdhiggins/sickbeard_mp4_automator/issues/643
 ONBUILD RUN pip3 uninstall stevedore
