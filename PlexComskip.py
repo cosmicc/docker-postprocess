@@ -38,7 +38,6 @@ COPY_ORIGINAL = config.getboolean('File Manipulation', 'copy-original')
 SAVE_ALWAYS = config.getboolean('File Manipulation', 'save-always')
 SAVE_FORENSICS = config.getboolean('File Manipulation', 'save-forensics')
 NICE_LEVEL = config.get('Helper Apps', 'nice-level')
-LOG_FORMAT = config.get('Logging', 'log-format')
 
 # Exit states
 CONVERSION_SUCCESS = 0
@@ -64,7 +63,9 @@ elif loglevel == "WARNING":
 else:
     lev = 40
 
-logging.add(sink=LOG_FILE_PATH, level=lev, buffering=1, enqueue=True, backtrace=True, diagnose=True, serialize=False, colorize=False, delay=False, format=LOG_FORMAT)
+logformat = '{time:YYYY-MM-DD HH:mm:ss.SSS}|{level: <7}|{name: <8}|{message: <72}'
+
+logging.add(sink=LOG_FILE_PATH, level=lev, buffering=1, enqueue=True, backtrace=True, diagnose=True, serialize=False, colorize=False, delay=False, format=logformat)
 
 
 # Human-readable bytes.

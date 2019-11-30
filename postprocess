@@ -21,7 +21,6 @@ config.read(configfile)
 
 loglevel = config.get("general", "loglevel")
 logpath = Path(config.get("general", "logpath"))
-logformat = config.get("general", "logformat")
 process_path = Path(config.get("general", "pollpath"))
 mp4logpath = Path(config.get("general", "mp4logpath")).mkdir(parents=True, exist_ok=True)
 deluge_host = config.get("deluge", "host")
@@ -39,6 +38,8 @@ elif loglevel == "WARNING":
     lev = 30
 else:
     lev = 40
+
+logformat = '{time:YYYY-MM-DD HH:mm:ss.SSS}|{level: <7}|{name: <8}|{message: <72}'
 
 log.add(sink=str(logpath), level=lev, buffering=1, enqueue=True, backtrace=True, diagnose=True, serialize=False, colorize=False, delay=False, format=logformat)
 
