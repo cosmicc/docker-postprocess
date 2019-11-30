@@ -38,6 +38,7 @@ COPY_ORIGINAL = config.getboolean('File Manipulation', 'copy-original')
 SAVE_ALWAYS = config.getboolean('File Manipulation', 'save-always')
 SAVE_FORENSICS = config.getboolean('File Manipulation', 'save-forensics')
 NICE_LEVEL = config.get('Helper Apps', 'nice-level')
+LOG_LEVEL = config.get('Logging', 'log-level')
 
 # Exit states
 CONVERSION_SUCCESS = 0
@@ -47,25 +48,35 @@ EXCEPTION_HANDLED = 3
 COMSKIP_FAILED = 4
 
 # Logging.
-loglevel = "INFO"
 session_uuid = str(uuid.uuid4())
 fmt = '%%(asctime)-15s [%s] %%(message)s' % session_uuid[:6]
 if not os.path.exists(os.path.dirname(LOG_FILE_PATH)):
     os.makedirs(os.path.dirname(LOG_FILE_PATH))
-if loglevel == "TRACE":
+
+logging.remove()
+logging.level("START", no=38, color="<fg 39>", icon="¤")
+
+logformat = "{time:YYYY-MM-DD HH:mm:ss.SSS}|{level: <7}|{name: <8}| {message: <72}"
+debuglogformat = "{time:YYYY-MM-DD HH:mm:ss.SSS}|{level: <7}|{name}:{line}:{function}| {message: <72}"
+
+if LOG_LEVEL == "TRACE":
     lev = 5
-elif loglevel == "DEBUG":
+    logf = debuglogformat
+elif LOG_LEVEL == "DEBUG":
     lev = 10
-elif loglevel == "INFO":
+    logf = debuglogformat
+elif LOG_LEVEL == "INFO":
     lev = 20
-elif loglevel == "WARNING":
+    logf = logformat
+elif LOG_LEVEL == "WARNING":
     lev = 30
+    logf = logformat
 else:
     lev = 40
+    logf = logformat
 
-logformat = "{time:YYYY-MM-DD HH:mm:ss.SSS}|{level: <7}|{name: <8}|{message: <72}"
-
-logging.add(sink=LOG_FILE_PATH, level=lev, buffering=1, enqueue=True, backtrace=True, diagnose=True, serialize=False, colorize=False, delay=False, format=logformat)
+logging.add(sink=LOG_FILE_PATH, level=lev, buffering=1, enqueue=True, backtrace=True, diagnose=True, serialize=False, colorize=False, delay=False, format=logf)
+logging.add(sink=sys.stdout, level=lev, backtrace=True, diagnose=True, serialize=False, colorize=False, delay=False, format=logf)
 
 
 # Human-readable bytes.
