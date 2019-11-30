@@ -194,7 +194,7 @@ try:
                     continue
 
                 segment_files.append(segment_file_name)
-                segment_list_file.write('file %s\n' % segment_file_name)
+                segment_list_file.write(b'file %s\n' % segment_file_name)
 
 except:
     logging.exception('Something went wrong during splitting:')
