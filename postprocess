@@ -29,7 +29,9 @@ deluge_username = config.get("deluge", "username")
 deluge_password = config.get("deluge", "password")
 
 log.remove()
-log.level("START", no=38, color="<fg 39>", icon="¤")
+logging.level("STARTUP", no=20, color="<fg 39>", icon="¤")
+logging.level("START", no=20, color="<fg 39>", icon="¤")
+logging.level("FINISH", no=20, color="<fg 39>", icon="¤")
 
 logformat = "{time:YYYY-MM-DD HH:mm:ss.SSS}|{name: <8}|{level: <7}| {message: <72}"
 debuglogformat = "{time:YYYY-MM-DD HH:mm:ss.SSS}|{name}:{line}:{function}|{level: <7}| {message: <72}"
@@ -59,7 +61,7 @@ if not process_path.exists():
     log.error('Poll directory does not exist!')
     exit(1)
 
-log.log('START', 'Postprocess is starting')
+log.log('STARTUP', 'Postprocess main script is starting')
 
 client = DelugeRPCClient(deluge_host, deluge_port, deluge_username, deluge_password)
 client.connect()
@@ -87,7 +89,7 @@ while True:
             else:
                 procfull = Path(fcontents.strip())
                 procfile = procfull.name
-                log.info(f'*Starting TVDVR file to process: {str(procfile)}')
+                log.log('START', f'Starting TVDVR file to process: {str(procfile)}')
                 log.debug(f'Process full filepath: {str(procfull)}')
                 log.debug(f'Process File: {str(procfile)}')
                 procpath = procfull.parent
@@ -115,7 +117,7 @@ while True:
                     else:
                         log.error(f'Error ({result}) returned in conversion')
                         file.rename(file.with_suffix('.failed'))
-                    log.info(f'*Finished TVDVR file proccessing: {str(procfile)}')
+                    log.log('FINISH', f'Finished TVDVR file proccessing: {str(procfile)}')
 
         elif len(delugelist) > 0:
             file = delugelist[0]
@@ -126,7 +128,7 @@ while True:
                 file.rename(file.with_suffix('.ignored'))
             else:
                 procfile = Path(fsplit[2])
-                log.info(f'*Starting DELUGE file to process: {str(procfile)}')
+                log.log('START', f'Starting DELUGE file to process: {str(procfile)}')
                 log.debug(f'Process File: {str(procfile)}')
                 procpath = Path(fsplit[3])
                 log.debug(f'Process File Path: {str(procpath)}')
@@ -162,7 +164,7 @@ while True:
                 else:
                     log.error(f'Error ({result}) returned in conversion')
                     file.rename(file.with_suffix('.failed'))
-                log.info(f'*Finished DELUGE file proccessing: {str(procfile)}')
+                log.log('FINISH', f'Finished DELUGE file proccessing: {str(procfile)}')
         else:
             sleep(30)
     except:

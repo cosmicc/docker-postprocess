@@ -54,7 +54,9 @@ if not os.path.exists(os.path.dirname(LOG_FILE_PATH)):
     os.makedirs(os.path.dirname(LOG_FILE_PATH))
 
 logging.remove()
-logging.level("START", no=38, color="<fg 39>", icon="¤")
+logging.level("STARTUP", no=20, color="<fg 39>", icon="¤")
+logging.level("START", no=20, color="<fg 39>", icon="¤")
+logging.level("FINISH", no=20, color="<fg 39>", icon="¤")
 
 logformat = "{time:YYYY-MM-DD HH:mm:ss.SSS}|{name: <8}|{level: <7}| {message: <72}"
 debuglogformat = "{time:YYYY-MM-DD HH:mm:ss.SSS}|{name}:{line}:{function}|{level: <7}| {message: <72}"
@@ -107,7 +109,7 @@ def cleanup_and_exit(temp_dir, keep_temp=False, exit_code=CONVERSION_SUCCESS):
             exit_code = EXCEPTION_HANDLED
 
     # Exit cleanly.
-    logging.info('Done processing!')
+    logging.info('Finished comskip processing')
     os._exit(exit_code)
 
 
@@ -121,14 +123,14 @@ try:
         os.makedirs(comskip_out)
     os.chdir(temp_dir)
 
-    logging.info('Using session ID: %s' % session_uuid)
-    logging.info('Using temp dir: %s' % temp_dir)
-    logging.info('Using comskip dir: %s' % comskip_out)
+    logging.debug('Using session ID: %s' % session_uuid)
+    logging.debug('Using temp dir: %s' % temp_dir)
+    logging.debug('Using comskip dir: %s' % comskip_out)
     logging.info('Using input file: %s' % video_path)
 
     output_video_dir = os.path.dirname(video_path)
     if sys.argv[2:]:
-        logging.info('Output will be put in: %s' % sys.argv[2])
+        logging.debug('Output will be put in: %s' % sys.argv[2])
         output_video_dir = os.path.dirname(sys.argv[2])
 
     video_basename = os.path.basename(video_path)
@@ -148,10 +150,10 @@ try:
 
     # Process with comskip.
     cmd = [COMSKIP_PATH, '--output', comskip_out, '--ini', COMSKIP_INI_PATH, temp_video_path]
-    logging.info('[comskip] Command: %s' % cmd)
+    logging.debug('[comskip] Command: %s' % cmd)
     comskip_status = subprocess.call(cmd)
     if comskip_status != 0:
-        logging.error('Comskip did not exit properly with code: %s' % comskip_status)
+        logging.warning('Comskip did not exit properly with code: %s' % comskip_status)
         cleanup_and_exit(temp_dir, False, COMSKIP_FAILED)
         # raise Exception('Comskip did not exit properly')
 
@@ -195,7 +197,7 @@ try:
             cmd = [FFMPEG_PATH, '-i', temp_video_path, '-ss', str(segment[0])]
             cmd.extend(duration_args)
             cmd.extend(['-c', 'copy', segment_file_name])
-            logging.info('[ffmpeg] Command: %s' % cmd)
+            logging.debug('[ffmpeg] Command: %s' % cmd)
             try:
                 subprocess.call(cmd)
             except:
@@ -219,14 +221,14 @@ except:
 logging.info('Going to concatenate %s files from the segment list.' % len(segment_files))
 try:
     cmd = [FFMPEG_PATH, '-y', '-f', 'concat', '-i', segment_list_file_path, '-c', 'copy', os.path.join(temp_dir, video_basename)]
-    logging.info('[ffmpeg] Command: %s' % cmd)
+    logging.debug('[ffmpeg] Command: %s' % cmd)
     subprocess.call(cmd)
 
 except:
     logging.exception('Something went wrong during concatenation:')
     cleanup_and_exit(temp_dir, SAVE_ALWAYS or SAVE_FORENSICS, EXCEPTION_HANDLED)
 
-logging.info('Sanity checking our work...')
+logging.info('Sanity checking comskipped file')
 try:
     input_size = os.path.getsize(os.path.abspath(video_path))
     output_size = os.path.getsize(os.path.abspath(os.path.join(temp_dir, video_basename)))
@@ -239,7 +241,7 @@ try:
         shutil.copy(os.path.join(temp_dir, video_basename), output_video_dir)
         cleanup_and_exit(temp_dir, SAVE_ALWAYS)
     else:
-        logging.info('Output file size looked wonky (too big or too small); we won\'t replace the original: %s -> %s' % (sizeof_fmt(input_size), sizeof_fmt(output_size)))
+        logging.warning('Output file size looked wonky (too big or too small); we won\'t replace the original: %s -> %s' % (sizeof_fmt(input_size), sizeof_fmt(output_size)))
         cleanup_and_exit(temp_dir, SAVE_ALWAYS or SAVE_FORENSICS, CONVERSION_SANITY_CHECK_FAILED)
 except:
     logging.exception('Something went wrong during sanity check:')
