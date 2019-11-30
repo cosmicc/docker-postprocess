@@ -38,7 +38,7 @@ RUN apk del builddeps \
 # Main Scripts
 COPY postprocess /
 COPY PlexComskip.py /opt
-RUN chown 1000.1000 /opt/mp4_automator -R && chown 1000.1000 /opt/PlexComskip.py && chmod ugo+x /opt/PlexComskip.py && chmod ugo+x /postprocess && ln -s /usr/bin/python /usr/bin/python3
+RUN chown 1000.1000 /opt/mp4_automator -R && chown 1000.1000 /opt/PlexComskip.py && chmod ugo+x /opt/PlexComskip.py && chmod ugo+x /postprocess && ln -s /usr/bin/python3 /usr/bin/python
 
 ENV PATH="/opt/ffmpeg/bin:/opt/mp4_automator:${PATH}"
 
