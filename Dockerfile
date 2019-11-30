@@ -7,10 +7,8 @@ VOLUME /downloads
 VOLUME /transcode
 
 
-# Install Git & Curl
-RUN apk add --no-cache git curl
-
-RUN apk add --no-cache python3 py3-setuptools python3-dev libffi-dev gcc musl-dev openssl-dev
+# Install apk packages
+RUN apk add --no-cache git curl python3 py3-setuptools python3-dev libffi-dev gcc musl-dev openssl-dev
 
 # Install python and packages
 RUN pip3 install --no-cache --upgrade pip
@@ -24,9 +22,7 @@ ONBUILD RUN pip3 uninstall stevedore
 ONBUILD RUN pip3 install stevedore==1.19.1
 
 # Install MP4 Automator
-RUN git clone https://github.com/mdhiggins/sickbeard_mp4_automator.git /opt/mp4_automator
-
-RUN ln -s /config/autoProcess.ini /opt/mp4_automator/autoProcess.ini && rm /opt/mp4_automator/logging.ini && ln -s /config/logging.ini /opt/mp4_automator/logging.ini && ln -s /config/logs/mp4_automator /var/log/sickbeard_mp4_automator
+RUN git clone https://github.com/mdhiggins/sickbeard_mp4_automator.git /opt/mp4_automator && ln -s /config/autoProcess.ini /opt/mp4_automator/autoProcess.ini && rm /opt/mp4_automator/logging.ini && ln -s /config/logging.ini /opt/mp4_automator/logging.ini && ln -s /config/logs/mp4_automator /var/log/sickbeard_mp4_automator
 
 # Install Comskip
 RUN apk --no-cache add ffmpeg tzdata bash \
