@@ -84,7 +84,6 @@ def cleanup_and_exit(temp_dir, keep_temp=False, exit_code=CONVERSION_SUCCESS):
         logging.info('Leaving temp files in: %s, %s' % (temp_dir, comskip_out))
     else:
         try:
-            os.chdir(os.path.expanduser('~'))  # Get out of the temp dir before we nuke it (causes issues on NTFS)
             shutil.rmtree(temp_dir)
             if temp_dir != comskip_out:
                 shutil.rmtree(comskip_out)
