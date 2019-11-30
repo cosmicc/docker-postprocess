@@ -63,7 +63,7 @@ elif loglevel == "WARNING":
 else:
     lev = 40
 
-logformat = '{time:YYYY-MM-DD HH:mm:ss.SSS}|{level: <7}|{name: <8}|{message: <72}'
+logformat = "{time:YYYY-MM-DD HH:mm:ss.SSS}|{level: <7}|{name: <8}|{message: <72}"
 
 logging.add(sink=LOG_FILE_PATH, level=lev, buffering=1, enqueue=True, backtrace=True, diagnose=True, serialize=False, colorize=False, delay=False, format=logformat)
 

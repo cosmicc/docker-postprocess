@@ -39,11 +39,11 @@ elif loglevel == "WARNING":
 else:
     lev = 40
 
-logformat = '{time:YYYY-MM-DD HH:mm:ss.SSS}|{level: <7}|{name: <8}|{message: <72}'
+logformat = "{time:YYYY-MM-DD HH:mm:ss.SSS}|{level: <7}|{name: <8}|{message: <72}"
 
 log.add(sink=str(logpath), level=lev, buffering=1, enqueue=True, backtrace=True, diagnose=True, serialize=False, colorize=False, delay=False, format=logformat)
 
-comskip_error = ('CONVERSION_SUCCESS', 'CONVERSION_DID_NOT_MODIFY_ORIGINAL', 'CONVERSION_SANITY_CHECK_FAILED', 'EXCEPTION_HANDLED ', 'COMSKIP_FAILED')
+comskip_error = ('Success', 'Did not modify original', 'Sanity Check Failed', 'Exception Handled', 'Failed')
 
 if not process_path.exists():
     log.error('Poll directory does not exist!')
