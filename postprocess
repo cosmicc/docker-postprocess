@@ -79,6 +79,7 @@ while True:
                         result = process.wait()
                         if result != 0:
                             log.error(f'Error ({result}) returned in comskip')
+                            file.rename(file.with_suffix('.failed'))
                         else:
                             log.info(f'Comskip returned success')
                             configfile = '/config/autoProcessDVR.ini'
