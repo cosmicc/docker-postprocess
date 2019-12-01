@@ -37,6 +37,7 @@ deluge_password = config.get("deluge", "password")
 
 pausefile1 = process_path / '.pause'
 pausefile2 = Path('/config/.pause')
+nodeluge = process_path / '.nodeluge'
 
 log.remove()
 log.level("STARTUP", no=20, color="<fg 39>", icon="¤")
@@ -111,7 +112,7 @@ def check_pause():
     if pausefile1.exists() or pausefile2.exists():
         log.warning('Pause file detected. Pausing Script')
     while pausefile1.exists() or pausefile2.exists():
-        sleep(60)
+        sleep(10)
     log.info('Pause file cleared. Resuming Script')
 
 
@@ -132,7 +133,10 @@ def checkdelugeconnection():
         client.connect()
         if client.connected:
             log.info(f'Connected to deluge server: {deluge_host}:{deluge_port} - Enabling Deluge Processing')
-            return True
+            if nodeluge.is_file():
+                return False
+            else:
+                return True
         else:
             log.error(f'Cannot connect to deluge server: {deluge_host}:{deluge_port} - Disabling Deluge Processing.')
             return False
@@ -170,8 +174,7 @@ def plexdvrprocess(file):
         configfile = Path('/config/autoProcessDVR.ini')
         log.debug(f'Using x264 config file: {str(configfile)}')
         start_size = getsize(procfull)
-        log.debug(f'Original file size: {sizeof_fmt(start_size)}')
-        log.info(f'Starting x264 conversion for: {str(procfile)}')
+        log.info(f'Starting x264 conversion {sizeof_fmt(start_size)}: {str(procfile)}')
         cmd = ['/usr/bin/python3', '/opt/mp4_automator/manual.py', '-i', f'{procfull}', '-a', '-c', f'{str(configfile)}']
         log.debug(f'cmd: {cmd}')
         process = subprocess.Popen(cmd)
@@ -179,9 +182,9 @@ def plexdvrprocess(file):
         if result == 0:
             end_size = procfull.stat().st_size
             if start_size - end_size >= 0:
-                pre = '+'
-            else:
                 pre = '-'
+            else:
+                pre = '+'
             log.success(f'x264 Conversion successful: {pre}{sizeof_fmt(abs(start_size - end_size))} {sizeof_fmt(start_size)} -> {sizeof_fmt(end_size)} ')
             file.unlink()
         else:
@@ -213,8 +216,7 @@ def delugeprocess(file):
             configfile = Path('/config/autoProcessMOVIE.ini')
         log.info(f'Using x264 config file: {str(configfile)}')
         start_size = getsize(procfull)
-        log.debug(f'Original file size: {sizeof_fmt(start_size)}')
-        log.info(f'Starting x264 conversion: {str(procfile)}')
+        log.info(f'Starting x264 conversion {sizeof_fmt(start_size)}: {str(procfile)}')
         cmd = ['/usr/bin/python3', '/opt/mp4_automator/manual.py', '-i', f'{procfull}', '-a', '-c', f'{str(configfile)}']
         log.debug(cmd)
         process = subprocess.Popen(cmd)
@@ -222,9 +224,9 @@ def delugeprocess(file):
         if result == 0:
             end_size = procfull.stat().st_size
             if start_size - end_size >= 0:
-                pre = '+'
-            else:
                 pre = '-'
+            else:
+                pre = '+'
             log.success(f'x264 Conversion successful: {pre}{sizeof_fmt(abs(start_size - end_size))} {sizeof_fmt(start_size)} -> {sizeof_fmt(end_size)} ')
             file.unlink()
             try:
