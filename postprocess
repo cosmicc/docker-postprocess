@@ -159,7 +159,7 @@ def plexdvrprocess(file):
     log.debug(f'Process File Path: {str(procpath)}')
     log.info(f'Starting commercial skip detection: {str(procfile)}')
     cmd = ['/opt/PlexComskip.py', f'{str(procfull)}']
-    log.debug(f'cmd: {cmd}')
+    # log.debug(f'cmd: {cmd}')
     process = subprocess.Popen(cmd)
     result = process.wait()
     if result != 0 and result != 2 and result != 1 and result != 4:
@@ -218,7 +218,7 @@ def delugeprocess(file):
         start_size = getsize(procfull)
         log.info(f'Starting x264 conversion {sizeof_fmt(start_size)}: {str(procfile)}')
         cmd = ['/usr/bin/python3', '/opt/mp4_automator/manual.py', '-i', f'{procfull}', '-a', '-c', f'{str(configfile)}']
-        log.debug(cmd)
+        # log.debug(cmd)
         process = subprocess.Popen(cmd)
         result = process.wait()
         if result == 0:
