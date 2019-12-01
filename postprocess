@@ -59,23 +59,10 @@ else:
     lev = 40
     logf = logformat
 
+log.add(sys.stderr, level=lev, backtrace=True, diagnose=True, format=logf)
 log.add(sink=str(logpath), level=lev, buffering=1, enqueue=True, backtrace=True, diagnose=True, serialize=False, colorize=False, delay=False, format=logf)
-log.add(sys.stderr, level=lev, backtrace=True, diagnose=True, serialize=False, colorize=False, delay=False, format=logf)
 
 comskip_error = ('Success', 'Did not modify original', 'Sanity Check Failed', 'Exception Handled', 'Failed')
-
-if not process_path.exists():
-    log.error('Poll directory does not exist!')
-    exit(1)
-
-log.log('STARTUP', 'Postprocess main script is starting')
-
-client = DelugeRPCClient(deluge_host, deluge_port, deluge_username, deluge_password)
-client.connect()
-if client.connected:
-    log.debug('Connected to deluge server')
-else:
-    log.error(f'Cannot connect to deluge server: {deluge_host}:{deluge_port}')
 
 
 # Human-readable bytes.
@@ -87,16 +74,42 @@ def sizeof_fmt(num, suffix='B'):
     return "%.1f%s%s" % (num, 'Y', suffix)
 
 
+log.log('STARTUP', 'Postprocess main script is starting')
+
+if not process_path.is_dir():
+    log.error('Poll directory does not exist. Exiting.')
+    os._exit(2)
+
+if not transcode_path.is_dir():
+    log.critical(f'Transcode path {str(transcode_path)} does not exist. Exiting.')
+    os._exit(3)
+diskusage = disk_usage('/transcode')
+if diskusage[0] < 12884901888:
+    log.critical(f'Transcode path {str(transcode_path)} under 12G. Exiting.')
+    os._exit(3)
+else:
+    log.info(f'Transcode path {str(transcode_path)} reports total size {sizeof_fmt(diskusage[0])}')
+
+client = DelugeRPCClient(deluge_host, deluge_port, deluge_username, deluge_password)
+
+
+def checkdelugeconnection():
+    if client.connected:
+        return True
+    else:
+        client.connect()
+        if client.connected:
+            log.info(f'Connected to deluge server: {deluge_host}:{deluge_port}. Enabling Deluge Processing')
+            return True
+        else:
+            log.error(f'Cannot connect to deluge server: {deluge_host}:{deluge_port}. Disabling Deluge Processing.')
+            return False
+
+
 def check_transdir():
     if not transcode_path.is_dir():
         log.critical(f'Transcode path {str(transcode_path)} does not exist. Exiting.')
-        os._exit(1)
-    diskusage = disk_usage('/transcode')
-    if diskusage[0] < 12884901888:
-        log.critical(f'Transcode path {str(transcode_path)} under 12G. Exiting.')
-        os._exit(1)
-    else:
-        log.debug(f'Transcode path {str(transcode_path)} reports size {sizeof_fmt(diskusage[0])}')
+        os._exit(3)
     tc = 0
     for transcontents in transcode_path.iterdir():
         tc += 1
@@ -106,8 +119,7 @@ def check_transdir():
             os.system('rm -rf %s/*' % transcode_path)
         except:
             log.exception(f'Error clearing transcode directory {str(transcode_path)}')
-            os._exit(1)
-    log.debug(f'Transcode directory {str(transcode_path)} passed all checks')
+            os._exit(3)
 
 
 def plexdvrprocess(file):
@@ -214,7 +226,10 @@ def delugeprocess(file):
 
 while True:
     try:
+        # Check health of temp trancode dir (usually a ramdrive)
         check_transdir()
+        # Check health of Deluge connection
+        enabledeluge = checkdelugeconnection()
         # Create the lists of videos to process
         dvrlist = []
         tvlist = []
@@ -234,24 +249,25 @@ while True:
                     log.warning(f'Cannot parse process file contents ({str(filep)})')
                     filep.rename(filep.with_suffix('.ignored'))
                 else:
-                    procpath = Path(fsplit[3])
-                    if str(procpath) == '/downloads/complete/tv':
-                        tvlist.append(filep)
-                    elif str(procpath) == '/downloads/complete/movies':
-                        movielist.append(filep)
+                    if enabledeluge:
+                        procpath = Path(fsplit[3])
+                        if str(procpath) == '/downloads/complete/tv':
+                            tvlist.append(filep)
+                        elif str(procpath) == '/downloads/complete/movies':
+                            movielist.append(filep)
         if len(dvrlist) > 0 or len(tvlist) > 0 or len(movielist) > 0:
             log.debug(f'Found {len(dvrlist)} tvdvr videos, {len(tvlist)} tv shows, and {len(movielist)} movies to process')
-        # Process any tvdvvr videos in the list first
-        if len(dvrlist) > 0:
-            plexdvrprocess(dvrlist[0])
-        # Process any tv shows in the list next
-        elif len(tvlist) > 0:
-            delugeprocess(tvlist[0])
-        # Process any movies in the list last
-        elif len(movielist) > 0:
-            delugeprocess(movielist[0])
+            # Process any tvdvvr videos in the list first
+            if len(dvrlist) > 0:
+                plexdvrprocess(dvrlist[0])
+            # Process any tv shows in the list next
+            elif len(tvlist) > 0:
+                delugeprocess(tvlist[0])
+            # Process any movies in the list last
+            elif len(movielist) > 0:
+                delugeprocess(movielist[0])
         else:
-            sleep(30)
+            sleep(10)
     except:
-        log.exception('Error in postrocess main routine:')
-        os._exit(1)
+        log.exception('Error in postprocess main routine:')
+        os._exit(5)
