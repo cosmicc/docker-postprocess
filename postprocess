@@ -6,6 +6,7 @@ import sys
 from configparser import ConfigParser
 from pathlib import Path
 from time import sleep
+from psutil import disk_usage
 
 from deluge_client import DelugeRPCClient
 from loguru import logger as log
@@ -22,6 +23,7 @@ config.read(configfile)
 loglevel = config.get("general", "loglevel")
 logpath = Path(config.get("general", "logpath"))
 process_path = Path(config.get("general", "pollpath"))
+transcode_path = Path(config.get("general", "process_path"))
 mp4logpath = Path(config.get("general", "mp4logpath")).mkdir(parents=True, exist_ok=True)
 deluge_host = config.get("deluge", "host")
 deluge_port = int(config.get("deluge", "port"))
@@ -80,6 +82,29 @@ def sizeof_fmt(num, suffix='B'):
     return "%.1f%s%s" % (num, 'Y', suffix)
 
 
+def check_transdir():
+    if not transcode_path.is_dir():
+        log.critical(f'Transcode path {str(transcode_path)} does not exist. Exiting.')
+        os._exit(1)
+    diskusage = disk_usage('/transcode')
+    if diskusage[0] < 12884901888:
+        log.critical(f'Transcode path {str(transcode_path)} under 12G. Exiting.')
+        os._exit(1)
+    else:
+        log.debug(f'Transcode path {str(transcode_path)} reports size {sizeof_fmt(diskusage[0])}')
+    tc = 0
+    for transcontents in transcode_path.iterdir():
+        tc += 1
+    if tc > 0:
+        log.warning(f'Transode directory {transcode_path} is not empty. Clearing.')
+        try:
+            os.system('rm -rf %s/*' % transcode_path)
+        except:
+            log.exception(f'Error clearing transcode directory {str(transcode_path)}')
+            os._exit(1)
+    log.debug(f'Transcode directory {str(transcode_path)} passed all checks')
+
+
 def plexdvrprocess(file):
     fcontents = file.read_text()
     procfull = Path(fcontents.strip())
@@ -97,6 +122,7 @@ def plexdvrprocess(file):
     if result != 0 and result != 2 and result != 1 and result != 4:
         log.error(f'Error ({comskip_error[result]}) returned from comskip')
         file.rename(file.with_suffix('.failed'))
+        log.info(f'File marked failed: {file.with_suffix(".failed")}')
     else:
         if result == 0:
             log.success(f'Comskip completed ({comskip_error[result]})')
@@ -122,6 +148,7 @@ def plexdvrprocess(file):
         else:
             log.error(f'Error ({result}) returned in x264 conversion')
             file.rename(file.with_suffix('.failed'))
+            log.info(f'File marked failed: {file.with_suffix(".failed")}')
         log.log('FINISH', f'Finished PlexDVR file proccessing: {str(procfile)}')
 
 
@@ -176,11 +203,13 @@ def delugeprocess(file):
         else:
             log.error(f'Error ({result}) returned in x264 conversion')
             file.rename(file.with_suffix('.failed'))
+            log.info(f'File marked failed: {file.with_suffix(".failed")}')
         log.log('FINISH', f'Finished Deluge file proccessing: {str(procfile)}')
 
 
 while True:
     try:
+        check_transdir()
         # Create the lists of videos to process
         dvrlist = []
         tvlist = []
