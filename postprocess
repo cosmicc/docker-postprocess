@@ -25,15 +25,18 @@ configfile = "/config/PostProcess.conf"
 config = ConfigParser()
 config.read(configfile)
 
-loglevel = config.get("general", "loglevel")
-logpath = Path(config.get("general", "logpath"))
-process_path = Path(config.get("general", "pollpath"))
-transcode_path = Path(config.get("general", "process_path"))
-mp4logpath = Path(config.get("general", "mp4logpath")).mkdir(parents=True, exist_ok=True)
+loglevel = config.get("general", "log_level")
+logpath = Path(config.get("general", "log_path"))
+process_path = Path(config.get("general", "poll_path"))
+transcode_path = Path(config.get("general", "transcode_path"))
+mp4logpath = Path(config.get("general", "mp4log_path")).mkdir(parents=True, exist_ok=True)
 deluge_host = config.get("deluge", "host")
 deluge_port = int(config.get("deluge", "port"))
 deluge_username = config.get("deluge", "username")
 deluge_password = config.get("deluge", "password")
+
+pausefile1 = process_path / '.pause'
+pausefile2 = Path('/config/.pause')
 
 log.remove()
 log.level("STARTUP", no=20, color="<fg 39>", icon="¤")
@@ -88,9 +91,17 @@ if diskusage[0] < 12884901888:
     log.critical(f'Transcode path {str(transcode_path)} under 12G. Exiting.')
     os._exit(3)
 else:
-    log.info(f'Transcode path {str(transcode_path)} reports total size {sizeof_fmt(diskusage[0])}')
+    log.info(f'Transcode path {str(transcode_path)} reports total size of {sizeof_fmt(diskusage[0])}')
 
 client = DelugeRPCClient(deluge_host, deluge_port, deluge_username, deluge_password)
+
+
+def check_pause():
+    if pausefile1.exists() or pausefile2.exists():
+        log.warning('Pause file detected. Pausing Script')
+    while pausefile1.exists() or pausefile2.exists():
+        sleep(60)
+    log.info('Pause file cleared. Resuming Script')
 
 
 def getsize(pobj):
@@ -237,6 +248,8 @@ def delugeprocess(file):
 
 while True:
     try:
+        # check for .pause file in config or transcode dir and pausse script
+        check_pause()
         # Check health of temp trancode dir (usually a ramdrive)
         check_transdir()
         # Check health of Deluge connection
