@@ -146,8 +146,7 @@ except:
 try:
     if COPY_ORIGINAL or SAVE_ALWAYS:
         temp_video_path = os.path.join(temp_dir, video_basename)
-        input_size = os.path.getsize(os.path.join(temp_dir, video_basename))
-        sizeof_fmt(input_size)
+        input_size = os.path.getsize(os.path.abspath(video_path))
         logging.info('Copying file to workspace %s: %s' % (sizeof_fmt(input_size), temp_video_path))
         shutil.copy(video_path, temp_dir)
     else:
