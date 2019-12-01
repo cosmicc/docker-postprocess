@@ -29,8 +29,7 @@ RUN cd /tmp && wget http://prdownloads.sourceforge.net/argtable/argtable2-13.tar
 # Install Comskip
 RUN cd /tmp && git clone git://github.com/erikkaashoek/Comskip.git \
 && cd Comskip && ./autogen.sh && ./configure && make && make install \
-&& ln -s /config/PlexComskip.conf /opt/PlexComskip.conf \
-&& ln -s /config/comskip.ini /opt/comskip.ini
+&& ln -s /config/PlexComskip.conf /opt/PlexComskip.conf
 
 # Cleanup
 RUN apk del builddeps \
