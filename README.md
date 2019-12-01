@@ -1,18 +1,18 @@
 # docker-postprocess
-Docker image for remote postprocessing downloaded videos with MP4_Automator and nzbToMedia
+Docker image for remote postprocessing downloaded videos from Deluge and PlexDVR
 
-This is a Alpine linux base docker image with MP4_Automator and nzbToMedia to remotely process files from your downloader (Deluge, Qbittorrent, etc..)
+This image is different from other postprocessors, it does NOT have any downloaders built in.  It is made to run and transcode in a seperate docker container (from your downloaders and media managers).
+It polls a directory for trigger files left by the scripts to postprocess videos.
+It will remove commercials from Plex DVR videos and Transcode all videos (from PlexDVR and Deluge) to x264 suitable for Plex Direct Play. You must use Sonarr and Radarr's Drone factory processing for now (to pick up the completed post processed videos)
 
-This image is different from other postprocessors, it does NOT have any downloaders built in.  It is made to run as a seperate docker image (from your downloaders and media managers) that will poll for completed downloads to postprocess.  It will then (built into MP4_automator and nzbToMedia) after transcoding, notify and complete the video to your media manager (Sonarr, Sickrage, Radarr, etc).
-
-Volumes: 
-    /config - used to store all config files (MP4_Automator, nzbToMedia)
-    /downloads - location where your download stores all completed downloads (must be same path as downloader)
-    /transcode - used as temporary directory for transcoding video files.
-    /poll - directory it will watch for polling process trigger files created by the downloader torrent completion script.
+Docker Volumes:
+    /config - used to store all config files and logs (MP4_Automator, Comskip)
+    /downloads - location where deluge stores all completed downloads (must be same path as downloader)
+    /transcode - used as temporary directory for transcoding and de-commercialing video files.
+    /poll - directory it will watch for trigger files created by deluge completion script and Plex postprocess script.
 
 * The downloaded video locations on your downloader and media manager docker containers must have the same path to the video files that this images has.
-    
-* The completed download script that you add to your downloader (that creates the process trigger file): echo "%L|%T|%R|%F|%N|%I" > "/poll/%N"
 
-nzbToMedia not implimented yet.
+* Post Processing trigger scripts included must be added to Deluge and Plex
+
+* PlexDVR postprocess script waits 24 hours for the completed post-processed video to appear from the transcoder before it fails.

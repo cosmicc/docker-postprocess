@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 
+'''
+GalaxyMedia PlexDVR commercial detection and removal.
+https://github.com/cosmicc/docker-postprocess
+Modified from original: https://github.com/ekim1337/PlexComskip
+'''
+
 import configparser
 import os
 import shutil
