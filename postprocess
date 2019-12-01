@@ -132,13 +132,15 @@ def checkdelugeconnection():
     else:
         client.connect()
         if client.connected:
-            log.info(f'Connected to deluge server: {deluge_host}:{deluge_port} - Enabling Deluge Processing')
+            log.info(f'Connected to deluge server: {deluge_host}:{deluge_port}')
             if nodeluge.is_file():
+                log.warning(f'Deluge .nodeluge file found in poll directory. Disabling Deluge Processing.')
                 return False
             else:
+                log.info('Enabling Deluge Processing')
                 return True
         else:
-            log.error(f'Cannot connect to deluge server: {deluge_host}:{deluge_port} - Disabling Deluge Processing.')
+            log.error(f'Cannot connect to deluge server: {deluge_host}:{deluge_port} Disabling Deluge Processing.')
             return False
 
 
