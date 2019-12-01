@@ -122,8 +122,8 @@ def getsize(pobj):
     elif pobj.is_file():
         return pobj.stat().st_size
     else:
-        log.error(f'Error determining file/dir object size for: {str(pobj)}. Exiting')
-        os._exit(1)
+        log.error(f'Error determining file/dir object size for: {str(pobj)}')
+        return 0
 
 
 def checkdelugeconnection():
@@ -188,7 +188,10 @@ def plexdvrprocess(file):
             else:
                 pre = '+'
             log.success(f'x264 Conversion successful: ({pre}{sizeof_fmt(abs(start_size - end_size))}) {sizeof_fmt(start_size)} -> {sizeof_fmt(end_size)} ')
-            file.unlink()
+            if file.exists():
+                file.unlink()
+            else:
+                log.warning(f'Trying to remove file but doesnt exist: {str(file)}')
         else:
             log.error(f'Error ({result}) returned in x264 conversion')
             file.rename(file.with_suffix('.failed'))
@@ -217,34 +220,42 @@ def delugeprocess(file):
         elif str(procpath) == '/downloads/complete/movies':
             configfile = Path('/config/autoProcessMOVIE.ini')
         log.info(f'Using x264 config file: {str(configfile)}')
-        start_size = getsize(procfull)
-        log.info(f'Starting x264 conversion {sizeof_fmt(start_size)}: {str(procfile)}')
-        cmd = ['/usr/bin/python3', '/opt/mp4_automator/manual.py', '-i', f'{procfull}', '-a', '-c', f'{str(configfile)}']
-        # log.debug(cmd)
-        process = subprocess.Popen(cmd)
-        result = process.wait()
-        if result == 0:
-            end_size = procfull.stat().st_size
-            if start_size - end_size >= 0:
-                pre = '-'
+        if procfull.exists():
+            start_size = getsize(procfull)
+            log.info(f'Starting x264 conversion {sizeof_fmt(start_size)}: {str(procfile)}')
+            cmd = ['/usr/bin/python3', '/opt/mp4_automator/manual.py', '-i', f'{procfull}', '-a', '-c', f'{str(configfile)}']
+            # log.debug(cmd)
+            process = subprocess.Popen(cmd)
+            result = process.wait()
+            if result == 0:
+                end_size = procfull.stat().st_size
+                if start_size - end_size >= 0:
+                    pre = '-'
+                else:
+                    pre = '+'
+                log.success(f'x264 Conversion successful: ({pre}{sizeof_fmt(abs(start_size - end_size))}) {sizeof_fmt(start_size)} -> {sizeof_fmt(end_size)} ')
+                if file.exists():
+                    file.unlink()
+                else:
+                    log.warning(f'Trying to remove file but doesnt exist: {str(file)}')
+                try:
+                    client.call('core.remove_torrent', downloadid, True)
+                except:
+                    log.exception(f'Deluge removal failed: {str(procfile)}')
+                else:
+                    log.info(f'Deluge removal success: {str(procfile)}')
+                torrentfile = Path('/downloads/torrents') / (str(procfile) + '.torrent')
+                if torrentfile.exists():
+                    torrentfile.unlink()
+                    log.info(f'Removed torrent file: {str(torrentfile)}')
+                else:
+                    log.warning(f'No torrent file to remove: {str(torrentfile)}')
             else:
-                pre = '+'
-            log.success(f'x264 Conversion successful: ({pre}{sizeof_fmt(abs(start_size - end_size))}) {sizeof_fmt(start_size)} -> {sizeof_fmt(end_size)} ')
-            file.unlink()
-            try:
-                client.call('core.remove_torrent', downloadid, True)
-            except:
-                log.exception(f'Deluge removal failed: {str(procfile)}')
-            else:
-                log.info(f'Deluge removal success: {str(procfile)}')
-            torrentfile = Path('/downloads/torrents') / (str(procfile) + '.torrent')
-            if torrentfile.exists():
-                torrentfile.unlink()
-                log.info(f'Removed torrent file: {str(torrentfile)}')
-            else:
-                log.warning(f'No torrent file to remove: {str(torrentfile)}')
+                log.error(f'Error ({result}) returned in x264 conversion')
+                file.rename(file.with_suffix('.failed'))
+                log.info(f'File marked failed: {file.with_suffix(".failed")}')
         else:
-            log.error(f'Error ({result}) returned in x264 conversion')
+            log.error(f'Cannot process video, file is missing')
             file.rename(file.with_suffix('.failed'))
             log.info(f'File marked failed: {file.with_suffix(".failed")}')
         log.log('FINISH', f'Finished Deluge file proccessing: {str(procfile)}')
