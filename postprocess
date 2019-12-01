@@ -111,9 +111,9 @@ client = DelugeRPCClient(deluge_host, deluge_port, deluge_username, deluge_passw
 def check_pause():
     if pausefile1.exists() or pausefile2.exists():
         log.warning('Pause file detected. Pausing Script')
-    while pausefile1.exists() or pausefile2.exists():
-        sleep(10)
-    log.info('Pause file cleared. Resuming Script')
+        while pausefile1.exists() or pausefile2.exists():
+            sleep(10)
+        log.info('Pause file cleared. Resuming Script')
 
 
 def getsize(pobj):
