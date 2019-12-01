@@ -6,8 +6,9 @@ VOLUME /poll
 VOLUME /downloads
 VOLUME /transcode
 
-# Install apk packages
-RUN apk add --no-cache --virtual=builddeps gcc autoconf automake libtool build-base ffmpeg
+# Install apk packages that will be removed
+RUN apk add --no-cache --virtual=builddeps gcc autoconf automake libtool build-base linux-headers ffmpeg
+# Install apk packages that will stay
 RUN apk add --no-cache bash git curl wget tar python3 py3-setuptools python3-dev libffi-dev musl-dev openssl-dev ffmpeg-dev tzdata
 
 # Install python and packages
