@@ -191,7 +191,7 @@ try:
                 duration_args = []
             else:
                 duration_args = ['-t', str(segment[1] - segment[0])]
-            cmd = [FFMPEG_PATH, '-i', temp_video_path, '-ss', str(segment[0])]
+            cmd = [FFMPEG_PATH, '-hide_banner', '-loglevel panic', '-i', temp_video_path, '-ss', str(segment[0])]
             cmd.extend(duration_args)
             cmd.extend(['-c', 'copy', segment_file_name])
             logging.debug('[ffmpeg] Command: %s' % cmd)
@@ -217,7 +217,7 @@ except:
 
 logging.info('Going to concatenate %s files from the segment list.' % len(segment_files))
 try:
-    cmd = [FFMPEG_PATH, '-y', '-f', 'concat', '-i', segment_list_file_path, '-c', 'copy', os.path.join(temp_dir, video_basename)]
+    cmd = [FFMPEG_PATH, '-hide_banner', '-loglevel panic', '-y', '-f', 'concat', '-i', segment_list_file_path, '-c', 'copy', os.path.join(temp_dir, video_basename)]
     logging.debug('[ffmpeg] Command: %s' % cmd)
     subprocess.call(cmd)
 
