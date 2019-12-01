@@ -164,44 +164,49 @@ def plexdvrprocess(file):
     log.debug(f'Process File: {str(procfile)}')
     procpath = procfull.parent
     log.debug(f'Process File Path: {str(procpath)}')
-    log.info(f'Executing PlexComskip for: {str(procfile)}')
-    cmd = ['/opt/PlexComskip.py', f'{str(procfull)}']
-    # log.debug(f'cmd: {cmd}')
-    process = subprocess.Popen(cmd)
-    result = process.wait()
-    if result != 0 and result != 2 and result != 1 and result != 4:
-        log.error(f'Error ({comskip_error[result]}) returned from comskip')
-        file.rename(file.with_suffix('.failed'))
-        log.info(f'File marked failed: {file.with_suffix(".failed")}')
-    else:
-        if result == 0:
-            log.success(f'Comskip completed ({comskip_error[result]})')
-        else:
-            log.warning(f'Comskip completed ({comskip_error[result]})')
-        configfile = Path('/config/autoProcessDVR.ini')
-        log.debug(f'Using x264 config file: {str(configfile)}')
-        start_size = getsize(procfull)
-        log.info(f'Starting x264 conversion {sizeof_fmt(start_size)}: {str(procfile)}')
-        cmd = ['/usr/bin/python3', '/opt/mp4_automator/manual.py', '-i', f'{procfull}', '-a', '-c', f'{str(configfile)}']
-        log.debug(f'cmd: {cmd}')
+    if procfull.exists():
+        log.info(f'Executing PlexComskip for: {str(procfile)}')
+        cmd = ['/opt/PlexComskip.py', f'{str(procfull)}']
+        # log.debug(f'cmd: {cmd}')
         process = subprocess.Popen(cmd)
         result = process.wait()
-        if result == 0:
-            end_size = procfull.stat().st_size
-            if start_size - end_size >= 0:
-                pre = '-'
-            else:
-                pre = '+'
-            log.success(f'x264 Conversion successful: ({pre}{sizeof_fmt(abs(start_size - end_size))}) {sizeof_fmt(start_size)} -> {sizeof_fmt(end_size)} ')
-            if file.exists():
-                file.unlink()
-            else:
-                log.warning(f'Trying to remove file but doesnt exist: {str(file)}')
-        else:
-            log.error(f'Error ({result}) returned in x264 conversion')
+        if result != 0 and result != 2 and result != 1 and result != 4:
+            log.error(f'Error ({comskip_error[result]}) returned from comskip')
             file.rename(file.with_suffix('.failed'))
             log.info(f'File marked failed: {file.with_suffix(".failed")}')
-        log.log('FINISH', f'Finished PlexDVR file proccessing: {str(procfile)}')
+        else:
+            if result == 0:
+                log.success(f'Comskip completed ({comskip_error[result]})')
+            else:
+                log.warning(f'Comskip completed ({comskip_error[result]})')
+            configfile = Path('/config/autoProcessDVR.ini')
+            log.debug(f'Using x264 config file: {str(configfile)}')
+            start_size = getsize(procfull)
+            log.info(f'Starting x264 conversion {sizeof_fmt(start_size)}: {str(procfile)}')
+            cmd = ['/usr/bin/python3', '/opt/mp4_automator/manual.py', '-i', f'{procfull}', '-a', '-c', f'{str(configfile)}']
+            log.debug(f'cmd: {cmd}')
+            process = subprocess.Popen(cmd)
+            result = process.wait()
+            if result == 0:
+                end_size = procfull.stat().st_size
+                if start_size - end_size >= 0:
+                    pre = '-'
+                else:
+                    pre = '+'
+                log.success(f'x264 Conversion successful: ({pre}{sizeof_fmt(abs(start_size - end_size))}) {sizeof_fmt(start_size)} -> {sizeof_fmt(end_size)} ')
+                if file.exists():
+                    file.unlink()
+                else:
+                    log.warning(f'Trying to remove file but doesnt exist: {str(file)}')
+            else:
+                log.error(f'Error ({result}) returned in x264 conversion')
+                file.rename(file.with_suffix('.failed'))
+                log.info(f'File marked failed: {file.with_suffix(".failed")}')
+    else:
+        log.error(f'Cannot process video, file is missing')
+        file.rename(file.with_suffix('.failed'))
+        log.info(f'File marked failed: {file.with_suffix(".failed")}')
+    log.log('FINISH', f'Finished PlexDVR file proccessing: {str(procfile)}')
 
 
 def delugeprocess(file):
