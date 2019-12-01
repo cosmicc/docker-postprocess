@@ -157,7 +157,7 @@ def plexdvrprocess(file):
     log.debug(f'Process File: {str(procfile)}')
     procpath = procfull.parent
     log.debug(f'Process File Path: {str(procpath)}')
-    log.info(f'Starting commercial skip detection: {str(procfile)}')
+    log.info(f'Executing PlexComskip for: {str(procfile)}')
     cmd = ['/opt/PlexComskip.py', f'{str(procfull)}']
     # log.debug(f'cmd: {cmd}')
     process = subprocess.Popen(cmd)
