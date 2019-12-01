@@ -122,6 +122,7 @@ def check_transdir():
         os._exit(3)
     tc = 0
     for transcontents in transcode_path.iterdir():
+        log.debug(f'Transcode trash: {str(transcontents)}')
         tc += 1
     if tc > 0:
         log.warning(f'Transode directory {transcode_path} is not empty. Clearing.')
