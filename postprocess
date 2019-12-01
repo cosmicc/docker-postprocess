@@ -185,7 +185,7 @@ def plexdvrprocess(file):
                 pre = '-'
             else:
                 pre = '+'
-            log.success(f'x264 Conversion successful: {pre}{sizeof_fmt(abs(start_size - end_size))} {sizeof_fmt(start_size)} -> {sizeof_fmt(end_size)} ')
+            log.success(f'x264 Conversion successful: ({pre}{sizeof_fmt(abs(start_size - end_size))}) {sizeof_fmt(start_size)} -> {sizeof_fmt(end_size)} ')
             file.unlink()
         else:
             log.error(f'Error ({result}) returned in x264 conversion')
@@ -227,7 +227,7 @@ def delugeprocess(file):
                 pre = '-'
             else:
                 pre = '+'
-            log.success(f'x264 Conversion successful: {pre}{sizeof_fmt(abs(start_size - end_size))} {sizeof_fmt(start_size)} -> {sizeof_fmt(end_size)} ')
+            log.success(f'x264 Conversion successful: ({pre}{sizeof_fmt(abs(start_size - end_size))}) {sizeof_fmt(start_size)} -> {sizeof_fmt(end_size)} ')
             file.unlink()
             try:
                 client.call('core.remove_torrent', downloadid, True)
