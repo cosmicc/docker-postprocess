@@ -71,6 +71,15 @@ else:
     log.error(f'Cannot connect to deluge server: {deluge_host}:{deluge_port}')
 
 
+# Human-readable bytes.
+def sizeof_fmt(num, suffix='B'):
+    for unit in ['', 'K', 'M', 'G', 'T', 'P', 'E', 'Z']:
+        if abs(num) < 1024.0:
+            return "%3.1f%s%s" % (num, unit, suffix)
+        num /= 1024.0
+    return "%.1f%s%s" % (num, 'Y', suffix)
+
+
 def plexdvrprocess(file):
     fcontents = file.read_text()
     procfull = Path(fcontents.strip())
@@ -95,13 +104,20 @@ def plexdvrprocess(file):
             log.warning(f'Comskip completed ({comskip_error[result]})')
         configfile = Path('/config/autoProcessDVR.ini')
         log.debug(f'Using x264 config file: {str(configfile)}')
+        start_size = procfull.stat().st_size
+        log.debug(f'Original file size: {sizeof_fmt(start_size)}')
         log.info(f'Starting x264 conversion for: {str(procfile)}')
         cmd = ['/usr/bin/python3', '/opt/mp4_automator/manual.py', '-i', f'{procfull}', '-a', '-c', f'{str(configfile)}']
         log.debug(f'cmd: {cmd}')
         process = subprocess.Popen(cmd)
         result = process.wait()
         if result == 0:
-            log.success(f'x264 conversion successful: {str(procfile)}')
+            end_size = procfull.stat().st_size
+            if start_size - end_size >= 0:
+                pre = '+'
+            else:
+                pre = '-'
+            log.success(f'x264 Conversion successful: {pre}{sizeof_fmt(abs(start_size - end_size))} {sizeof_fmt(start_size)} -> {sizeof_fmt(end_size)} ')
             file.unlink()
         else:
             log.error(f'Error ({result}) returned in x264 conversion')
@@ -130,13 +146,20 @@ def delugeprocess(file):
         elif str(procpath) == '/downloads/complete/movies':
             configfile = Path('/config/autoProcessMOVIE.ini')
         log.info(f'Using x264 config file: {str(configfile)}')
+        start_size = procfull.stat().st_size
+        log.debug(f'Original file size: {sizeof_fmt(start_size)}')
         log.info(f'Starting x264 conversion: {str(procfile)}')
         cmd = ['/usr/bin/python3', '/opt/mp4_automator/manual.py', '-i', f'{procfull}', '-a', '-c', f'{str(configfile)}']
         log.debug(cmd)
         process = subprocess.Popen(cmd)
         result = process.wait()
         if result == 0:
-            log.success(f'x264 Conversion successful: {str(procfile)}')
+            end_size = procfull.stat().st_size
+            if start_size - end_size >= 0:
+                pre = '+'
+            else:
+                pre = '-'
+            log.success(f'x264 Conversion successful: {pre}{sizeof_fmt(abs(start_size - end_size))} {sizeof_fmt(start_size)} -> {sizeof_fmt(end_size)} ')
             file.unlink()
             try:
                 client.call('core.remove_torrent', downloadid, True)
