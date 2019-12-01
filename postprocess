@@ -204,8 +204,8 @@ def plexdvrprocess(file):
                 log.info(f'File marked failed: {file.with_suffix(".failed")}')
     else:
         log.error(f'Cannot process video, file is missing')
-        file.rename(file.with_suffix('.failed'))
-        log.info(f'File marked failed: {file.with_suffix(".failed")}')
+        file.rename(file.with_suffix('.missing'))
+        log.info(f'File marked failed: {file.with_suffix(".missing")}')
     log.log('FINISH', f'Finished PlexDVR file proccessing: {str(procfile)}')
 
 
@@ -266,8 +266,8 @@ def delugeprocess(file):
                 log.info(f'File marked failed: {file.with_suffix(".failed")}')
         else:
             log.error(f'Cannot process video, file is missing')
-            file.rename(file.with_suffix('.failed'))
-            log.info(f'File marked failed: {file.with_suffix(".failed")}')
+            file.rename(file.with_suffix('.missing'))
+            log.info(f'File marked failed: {file.with_suffix(".missing")}')
         log.log('FINISH', f'Finished Deluge file proccessing: {str(procfile)}')
 
 
