@@ -92,6 +92,17 @@ if diskusage[0] < 12884901888:
     os._exit(3)
 else:
     log.info(f'Transcode path {str(transcode_path)} reports total size of {sizeof_fmt(diskusage[0])}')
+tc = 0
+for transcontents in transcode_path.iterdir():
+    log.debug(f'Transcode trash: {str(transcontents)}')
+    tc += 1
+if tc > 0:
+    log.warning(f'Transode directory {transcode_path} is not empty. Clearing.')
+    try:
+        os.system('rm -rf %s/*' % transcode_path)
+    except:
+        log.exception(f'Error clearing transcode directory {str(transcode_path)}')
+        os._exit(3)
 
 client = DelugeRPCClient(deluge_host, deluge_port, deluge_username, deluge_password)
 
@@ -131,17 +142,6 @@ def check_transdir():
     if not transcode_path.is_dir():
         log.critical(f'Transcode path {str(transcode_path)} does not exist. Exiting.')
         os._exit(3)
-    tc = 0
-    for transcontents in transcode_path.iterdir():
-        log.debug(f'Transcode trash: {str(transcontents)}')
-        tc += 1
-    if tc > 0:
-        log.warning(f'Transode directory {transcode_path} is not empty. Clearing.')
-        try:
-            os.system('rm -rf %s/*' % transcode_path)
-        except:
-            log.exception(f'Error clearing transcode directory {str(transcode_path)}')
-            os._exit(3)
 
 
 def plexdvrprocess(file):
