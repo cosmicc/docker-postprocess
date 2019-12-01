@@ -93,16 +93,26 @@ else:
 client = DelugeRPCClient(deluge_host, deluge_port, deluge_username, deluge_password)
 
 
+def getsize(pobj):
+    if pobj.is_dir():
+        return sum(f.stat().st_size for f in pobj.glob('**/*') if f.is_file())
+    elif pobj.is_file():
+        return pobj.stat().st_size
+    else:
+        log.error(f'Error determining file/dir object size for: {str(pobj)}. Exiting')
+        os._exit(1)
+
+
 def checkdelugeconnection():
     if client.connected:
         return True
     else:
         client.connect()
         if client.connected:
-            log.info(f'Connected to deluge server: {deluge_host}:{deluge_port}. Enabling Deluge Processing')
+            log.info(f'Connected to deluge server: {deluge_host}:{deluge_port} - Enabling Deluge Processing')
             return True
         else:
-            log.error(f'Cannot connect to deluge server: {deluge_host}:{deluge_port}. Disabling Deluge Processing.')
+            log.error(f'Cannot connect to deluge server: {deluge_host}:{deluge_port} - Disabling Deluge Processing.')
             return False
 
 
@@ -147,7 +157,7 @@ def plexdvrprocess(file):
             log.warning(f'Comskip completed ({comskip_error[result]})')
         configfile = Path('/config/autoProcessDVR.ini')
         log.debug(f'Using x264 config file: {str(configfile)}')
-        start_size = procfull.stat().st_size
+        start_size = getsize(procfull)
         log.debug(f'Original file size: {sizeof_fmt(start_size)}')
         log.info(f'Starting x264 conversion for: {str(procfile)}')
         cmd = ['/usr/bin/python3', '/opt/mp4_automator/manual.py', '-i', f'{procfull}', '-a', '-c', f'{str(configfile)}']
@@ -190,7 +200,7 @@ def delugeprocess(file):
         elif str(procpath) == '/downloads/complete/movies':
             configfile = Path('/config/autoProcessMOVIE.ini')
         log.info(f'Using x264 config file: {str(configfile)}')
-        start_size = procfull.stat().st_size
+        start_size = getsize(procfull)
         log.debug(f'Original file size: {sizeof_fmt(start_size)}')
         log.info(f'Starting x264 conversion: {str(procfile)}')
         cmd = ['/usr/bin/python3', '/opt/mp4_automator/manual.py', '-i', f'{procfull}', '-a', '-c', f'{str(configfile)}']
