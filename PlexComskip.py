@@ -152,7 +152,8 @@ try:
     else:
         temp_video_path = video_path
 
-    # Process with comskip.
+    # Process with comskip
+    logging.info('Starting commercial skip detection and cut-file generation')
     cmd = [COMSKIP_PATH, '--output', comskip_out, '--ini', COMSKIP_INI_PATH, temp_video_path]
     logging.debug('[comskip] Command: %s' % cmd)
     comskip_status = subprocess.call(cmd)

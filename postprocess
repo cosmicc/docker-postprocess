@@ -152,7 +152,7 @@ def plexdvrprocess(file):
     fcontents = file.read_text()
     procfull = Path(fcontents.strip())
     procfile = procfull.name
-    log.log('START', f'Starting PlexDVR file to process: {str(procfile)}')
+    log.log('START', f'Starting PlexDVR post-process: {str(procfile)}')
     log.debug(f'Process full filepath: {str(procfull)}')
     log.debug(f'Process File: {str(procfile)}')
     procpath = procfull.parent
@@ -202,7 +202,7 @@ def delugeprocess(file):
         file.rename(file.with_suffix('.ignored'))
     else:
         procfile = Path(fsplit[2])
-        log.log('START', f'Starting Deluge file to process: {str(procfile)}')
+        log.log('START', f'Starting Deluge post-process: {str(procfile)}')
         log.debug(f'Process File: {str(procfile)}')
         procpath = Path(fsplit[3])
         log.debug(f'Process File Path: {str(procpath)}')
