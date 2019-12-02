@@ -39,6 +39,8 @@ pausefile1 = process_path / '.pause'
 pausefile2 = Path('/config/.pause')
 nodeluge = process_path / '.nodeluge'
 
+finishlog = Path('/config/logs/completed.log')
+
 log.remove()
 log.level("STARTUP", no=20, color="<fg 39>", icon="¤")
 log.level("START", no=20, color="<fg 39>", icon="¤")
@@ -108,6 +110,12 @@ if tc > 0:
 client = DelugeRPCClient(deluge_host, deluge_port, deluge_username, deluge_password)
 
 
+def finish_log(label, videofile, result):
+    logline = f'{label},{result},{videofile}'
+    finishlog.write_text(logline)
+    log.info(f'Wrote completion results to finishlog')
+
+
 def check_pause():
     if pausefile1.exists() or pausefile2.exists():
         log.warning('Pause file detected. Pausing Script')
@@ -174,6 +182,7 @@ def plexdvrprocess(file):
             log.error(f'Error ({comskip_error[result]}) returned from comskip')
             file.rename(file.with_suffix('.failed'))
             log.info(f'File marked failed: {file.with_suffix(".failed")}')
+            finish_log('tvdvr', f'comskip error ({comskip_error[result]})', str(file))
         else:
             if result == 0:
                 log.success(f'Comskip completed ({comskip_error[result]})')
@@ -198,14 +207,17 @@ def plexdvrprocess(file):
                     file.unlink()
                 else:
                     log.warning(f'Trying to remove file but doesnt exist: {str(file)}')
+                finish_log('tvdvr', f'success', str(file))
             else:
                 log.error(f'Error ({result}) returned in x264 conversion')
                 file.rename(file.with_suffix('.failed'))
                 log.info(f'File marked failed: {file.with_suffix(".failed")}')
+                finish_log('tvdvr', f'conversion error ({result})', str(file))
     else:
         log.error(f'Cannot process video, file is missing')
         file.rename(file.with_suffix('.missing'))
         log.info(f'File marked failed: {file.with_suffix(".missing")}')
+        finish_log('tvdvr', f'missing file', str(file))
     log.log('FINISH', f'Finished PlexDVR file proccessing: {str(procfile)}')
 
 
@@ -215,6 +227,7 @@ def delugeprocess(file):
     if len(fsplit) < 4:
         log.warning(f'Cannot parse process file contents: ({str(file)})')
         file.rename(file.with_suffix('.ignored'))
+        finish_log('deluge', f'parse error', str(file))
     else:
         procfile = Path(fsplit[2])
         log.log('START', f'Starting Deluge post-process: {str(procfile)}')
@@ -244,6 +257,7 @@ def delugeprocess(file):
                 else:
                     pre = '+'
                 log.success(f'x264 Conversion successful: ({pre}{sizeof_fmt(abs(start_size - end_size))}) {sizeof_fmt(start_size)} -> {sizeof_fmt(end_size)} ')
+                finish_log('deluge', f'success', str(file))
                 if file.exists():
                     file.unlink()
                 else:
@@ -264,10 +278,12 @@ def delugeprocess(file):
                 log.error(f'Error ({result}) returned in x264 conversion')
                 file.rename(file.with_suffix('.failed'))
                 log.info(f'File marked failed: {file.with_suffix(".failed")}')
+                finish_log('deluge', f'conversion error ({result})', str(file))
         else:
             log.error(f'Cannot process video, file is missing')
             file.rename(file.with_suffix('.missing'))
             log.info(f'File marked failed: {file.with_suffix(".missing")}')
+            finish_log('deluge', f'missing file', str(file))
         log.log('FINISH', f'Finished Deluge file proccessing: {str(procfile)}')
 
 
