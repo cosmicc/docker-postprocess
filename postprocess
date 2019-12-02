@@ -111,9 +111,9 @@ client = DelugeRPCClient(deluge_host, deluge_port, deluge_username, deluge_passw
 
 
 def finish_log(label, videofile, result):
-    logline = f'{label},{result},{videofile}'
+    logline = f'{label},{result},{videofile}\n'
     finishlog.write_text(logline)
-    log.info(f'Wrote completion results to finishlog')
+    log.info(f'Wrote finishlog: {label},{result},{videofile}')
 
 
 def check_pause():

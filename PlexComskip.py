@@ -177,7 +177,7 @@ try:
             for segment in edl:
                 start, end, something = segment.split()
                 if float(start) == 0.0:
-                    logging.info('Start of file is junk, skipping this segment...')
+                    logging.info('Start of file is junk, skipping this segment')
                 else:
                     keep_segment = [float(prev_segment_end), float(start)]
                     logging.info('Keeping segment from %s to %s...' % (keep_segment[0], keep_segment[1]))
@@ -185,9 +185,9 @@ try:
                 prev_segment_end = end
 
     # Write the final keep segment from the end of the last commercial break to the end of the file.
-    keep_segment0 = [float(prev_segment_end), -1]
-    logging.info('Keeping segment from %s to the end of the file...' % prev_segment_end)
-    segments.append(keep_segment)
+    keep_last_segment = [float(prev_segment_end), -1]
+    logging.info('Keeping segment from %s to the end of the file.' % keep_last_segment[0])
+    segments.append(keep_last_segment)
 
     segment_files = []
     segment_list_file_path = os.path.join(temp_dir, 'segments.txt')
