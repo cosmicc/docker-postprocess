@@ -135,6 +135,7 @@ def check_transdir():
 
 
 def plexdvrprocess(file):
+    ptype = 'plexdvr'
     fcontents = file.read_text()
     procfull = Path(fcontents.strip())
     procfile = procfull.name
@@ -153,7 +154,7 @@ def plexdvrprocess(file):
             log.error(f'Error ({comskip_error[result]}) returned from comskip')
             file.rename(file.with_suffix('.failed'))
             log.info(f'File marked failed: {file.with_suffix(".failed")}')
-            finish_log('tvdvr', f'comskip error ({comskip_error[result]})', file)
+            finish_log(ptype, f'comskip error ({comskip_error[result]})', file)
         else:
             if result == 0:
                 log.success(f'Comskip completed ({comskip_error[result]})')
@@ -168,17 +169,18 @@ def plexdvrprocess(file):
         log.error(f'Cannot process video, file is missing')
         file.rename(file.with_suffix('.missing'))
         log.info(f'File marked failed: {file.with_suffix(".missing")}')
-        finish_log('tvdvr', f'missing file', file)
+        finish_log(ptype, f'missing file', file)
     log.log('FINISH', f'Finished PlexDVR file proccessing: {str(procfile)}')
 
 
 def delugeprocess(file):
+    ptype = 'deluge'
     fcontents = file.read_text()
     fsplit = fcontents.split('|')
     if len(fsplit) < 4:
         log.warning(f'Cannot parse process file contents: ({str(file)})')
         file.rename(file.with_suffix('.ignored'))
-        finish_log('deluge', f'parse error', file)
+        finish_log(ptype, f'parse error', file)
     else:
         procfile = Path(fsplit[2])
         log.log('START', f'Starting Deluge post-process: {str(procfile)}')
@@ -210,6 +212,10 @@ def delugeprocess(file):
 
 
 def transcode_video(file, videofile, configfile, plexdvr):
+    if plexdvr:
+        ptype = 'plexdvr'
+    else:
+        ptype = 'deluge'
     log.info(f'Using x264 config file: {str(configfile)}')
     if videofile.exists():
         start_size = getsize(videofile)
@@ -217,7 +223,7 @@ def transcode_video(file, videofile, configfile, plexdvr):
             log.error(f'Video file under 50MB, considering failed')
             file.rename(file.with_suffix('.failed'))
             log.info(f'File marked failed: {file.with_suffix(".failed")}')
-            finish_log('tvdvr', f'empty video file', file)
+            finish_log(ptype, f'empty video file', file)
             if plexdvr:
                 dvrfailfile = Path(f'/downloads/complete/dvr/{videofile.name}')
                 log.info(f'Sending fail result to Plex: {str(dvrfailfile)}')
@@ -234,25 +240,25 @@ def transcode_video(file, videofile, configfile, plexdvr):
                     file.unlink()
                 else:
                     log.warning(f'Trying to remove file but doesnt exist: {str(file)}')
-                finish_log('tvdvr', f'success', file)
+                finish_log(ptype, f'success', file)
                 return True
             else:
                 log.error(f'Error ({result}) returned in x264 conversion')
                 file.rename(file.with_suffix('.failed'))
                 log.info(f'File marked failed: {file.with_suffix(".failed")}')
-                finish_log('tvdvr', f'conversion error ({result})', file)
                 if plexdvr:
                     dvrfailfile = Path(f'/downloads/complete/dvr/{videofile.name}')
                     log.info(f'Sending fail result to Plex: {str(dvrfailfile)}')
+                finish_log(ptype, f'conversion error ({result})', file)
                 return False
     else:
         log.error(f'Cannot convert video, file is missing')
         file.rename(file.with_suffix('.missing'))
         log.info(f'File marked failed: {file.with_suffix(".missing")}')
-        finish_log('deluge', f'missing file', file)
         if plexdvr:
             dvrfailfile = Path(f'/downloads/complete/dvr/{videofile.name}')
             log.info(f'Sending fail result to Plex: {str(dvrfailfile)}')
+        finish_log(ptype, f'missing file', file)
         return False
 
 
