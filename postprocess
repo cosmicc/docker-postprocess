@@ -160,7 +160,7 @@ def plexdvrprocess(file):
             else:
                 log.warning(f'Comskip completed ({comskip_error[result]})')
             configfile = Path('/config/autoProcessDVR.ini')
-            transcode_video(file, procfull, configfile)
+            transcode_video(file, procfull, configfile, True)
     else:
         log.error(f'Cannot process video, file is missing')
         file.rename(file.with_suffix('.missing'))
@@ -190,7 +190,7 @@ def delugeprocess(file):
             configfile = Path('/config/autoProcessTV.ini')
         elif str(procpath) == '/downloads/complete/movies':
             configfile = Path('/config/autoProcessMOVIE.ini')
-        if transcode_video(file, procfull, configfile):
+        if transcode_video(file, procfull, configfile, False):
             try:
                 client.call('core.remove_torrent', downloadid, True)
             except:
@@ -206,15 +206,18 @@ def delugeprocess(file):
         log.log('FINISH', f'Finished Deluge file proccessing: {str(procfile)}')
 
 
-def transcode_video(file, videofile, configfile):
+def transcode_video(file, videofile, configfile, plexdvr):
     log.info(f'Using x264 config file: {str(configfile)}')
     if videofile.exists():
         start_size = getsize(videofile)
-        if start_size < 1000:
-            log.error(f'Empty video file Error')
+        if start_size < 50000000:
+            log.error(f'Video file under 50MB, considering failed')
             file.rename(file.with_suffix('.failed'))
             log.info(f'File marked failed: {file.with_suffix(".failed")}')
             finish_log('tvdvr', f'empty video file', file)
+            if plexdvr:
+                dvrfailfile = Path(f'/downloads/complete/dvr/{videofile.name}')
+                log.info(f'Sending fail result to Plex: {str(dvrfailfile)}')
             return False
         else:
             log.info(f'Starting x264 conversion {sizeof_fmt(start_size)}: {videofile.name}')
@@ -235,12 +238,18 @@ def transcode_video(file, videofile, configfile):
                 file.rename(file.with_suffix('.failed'))
                 log.info(f'File marked failed: {file.with_suffix(".failed")}')
                 finish_log('tvdvr', f'conversion error ({result})', file)
+                if plexdvr:
+                    dvrfailfile = Path(f'/downloads/complete/dvr/{videofile.name}')
+                    log.info(f'Sending fail result to Plex: {str(dvrfailfile)}')
                 return False
     else:
         log.error(f'Cannot convert video, file is missing')
         file.rename(file.with_suffix('.missing'))
         log.info(f'File marked failed: {file.with_suffix(".missing")}')
         finish_log('deluge', f'missing file', file)
+        if plexdvr:
+            dvrfailfile = Path(f'/downloads/complete/dvr/{videofile.name}')
+            log.info(f'Sending fail result to Plex: {str(dvrfailfile)}')
         return False
 
 

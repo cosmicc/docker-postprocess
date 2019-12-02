@@ -29,7 +29,7 @@
 ################################################################################
 
 # Path to the log file used by this script.
-LOGFILE="/config/Library/Application Support/Plex Media Server/Logs/Plex DVR Post Processing.log"
+LOGFILE="/config/logs/plex_postdvr.log"
 
 # Maximum time (in seconds) to wait for the video to be converted.
 CONVERSION_TIMEOUT=86400
@@ -71,6 +71,8 @@ SOURCE_FILENAME="$(basename "$SOURCE_PATH")"
 SOURCE_DIRNAME="$(dirname "$SOURCE_PATH")"
 CONVERTED_VIDEO_FILENAME="${SOURCE_FILENAME%.*}.${CONVERTED_VIDEO_EXT}"
 CONVERTED_VIDEO_PATH="$VIDEO_CONVERTER_OUTPUT_DIR/$CONVERTED_VIDEO_FILENAME"
+FAILED_VIDEO_PATH="$VIDEO_CONVERTER_OUTPUT_DIR/$CONVERTED_VIDEO_FILENAME.failed"
+
 
 log "Starting post-processing of recording '$SOURCE_PATH'..."
 
@@ -89,6 +91,13 @@ do
         if [ "$hash" == "$(get_file_hash "$CONVERTED_VIDEO_PATH")" ]; then
             log "Converted video detected at '$CONVERTED_VIDEO_PATH' with hash of '$hash'."
             break;
+        fi
+    fi
+    if [ -f "$FAILED_VIDEO_PATH" ]; then
+        hash="$(get_file_hash "$FAILED_VIDEO_PATH")"
+        sleep 10
+        if [ "$hash" == "$(get_file_hash "$FAILED_VIDEO_PATH")" ]; then
+            die "Failed video detected at '$FAILED_VIDEO_PATH' with hash of '$hash'."
         fi
     fi
 
