@@ -210,25 +210,32 @@ def transcode_video(file, videofile, configfile):
     log.info(f'Using x264 config file: {str(configfile)}')
     if videofile.exists():
         start_size = getsize(videofile)
-        log.info(f'Starting x264 conversion {sizeof_fmt(start_size)}: {videofile.name}')
-        cmd = ['/usr/bin/python3', '/opt/mp4_automator/manual.py', '-i', f'{videofile}', '-a', '-c', f'{str(configfile)}']
-        # log.debug(f'cmd: {cmd}')
-        process = subprocess.Popen(cmd)
-        result = process.wait()
-        if result == 0:
-            log.success(f'x264 Conversion successful: {videofile.name}')
-            if file.exists():
-                file.unlink()
-            else:
-                log.warning(f'Trying to remove file but doesnt exist: {str(file)}')
-            finish_log('tvdvr', f'success', file)
-            return True
-        else:
-            log.error(f'Error ({result}) returned in x264 conversion')
+        if start_size < 1000:
+            log.error(f'Empty video file Error')
             file.rename(file.with_suffix('.failed'))
             log.info(f'File marked failed: {file.with_suffix(".failed")}')
-            finish_log('tvdvr', f'conversion error ({result})', file)
+            finish_log('tvdvr', f'empty video file', file)
             return False
+        else:
+            log.info(f'Starting x264 conversion {sizeof_fmt(start_size)}: {videofile.name}')
+            cmd = ['/usr/bin/python3', '/opt/mp4_automator/manual.py', '-i', f'{videofile}', '-a', '-c', f'{str(configfile)}']
+            # log.debug(f'cmd: {cmd}')
+            process = subprocess.Popen(cmd)
+            result = process.wait()
+            if result == 0:
+                log.success(f'x264 Conversion successful: {videofile.name}')
+                if file.exists():
+                    file.unlink()
+                else:
+                    log.warning(f'Trying to remove file but doesnt exist: {str(file)}')
+                finish_log('tvdvr', f'success', file)
+                return True
+            else:
+                log.error(f'Error ({result}) returned in x264 conversion')
+                file.rename(file.with_suffix('.failed'))
+                log.info(f'File marked failed: {file.with_suffix(".failed")}')
+                finish_log('tvdvr', f'conversion error ({result})', file)
+                return False
     else:
         log.error(f'Cannot convert video, file is missing')
         file.rename(file.with_suffix('.missing'))
