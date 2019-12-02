@@ -159,7 +159,10 @@ def plexdvrprocess(file):
                 log.success(f'Comskip completed ({comskip_error[result]})')
             else:
                 log.warning(f'Comskip completed ({comskip_error[result]})')
-            configfile = Path('/config/autoProcessDVR.ini')
+            if 'News' in str(procfile):
+                configfile = Path('/config/autoProcessNEWS.ini')
+            else:
+                configfile = Path('/config/autoProcessDVR.ini')
             transcode_video(file, procfull, configfile, True)
     else:
         log.error(f'Cannot process video, file is missing')
