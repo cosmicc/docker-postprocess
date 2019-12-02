@@ -189,11 +189,11 @@ def plexdvrprocess(file):
             else:
                 log.warning(f'Comskip completed ({comskip_error[result]})')
             configfile = Path('/config/autoProcessDVR.ini')
-            log.debug(f'Using x264 config file: {str(configfile)}')
+            log.info(f'Using x264 config file: {str(configfile)}')
             start_size = getsize(procfull)
             log.info(f'Starting x264 conversion {sizeof_fmt(start_size)}: {str(procfile)}')
             cmd = ['/usr/bin/python3', '/opt/mp4_automator/manual.py', '-i', f'{procfull}', '-a', '-c', f'{str(configfile)}']
-            log.debug(f'cmd: {cmd}')
+            # log.debug(f'cmd: {cmd}')
             process = subprocess.Popen(cmd)
             result = process.wait()
             if result == 0:
@@ -321,7 +321,7 @@ while True:
                         elif str(procpath) == '/downloads/complete/movies':
                             movielist.append(filep)
         if len(dvrlist) > 0 or len(tvlist) > 0 or len(movielist) > 0:
-            log.debug(f'Found {len(dvrlist)} tvdvr videos, {len(tvlist)} tv shows, and {len(movielist)} movies to process')
+            log.info(f'Found {len(dvrlist)} tvdvr videos, {len(tvlist)} tv shows, and {len(movielist)} movies to process')
             # Process any tvdvvr videos in the list first
             if len(dvrlist) > 0:
                 plexdvrprocess(dvrlist[0])

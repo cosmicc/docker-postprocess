@@ -177,16 +177,16 @@ try:
             for segment in edl:
                 start, end, something = segment.split()
                 if float(start) == 0.0:
-                    logging.info('Start of file is junk, skipping this segment')
+                    logging.info('* Start of file is junk, skipping this segment')
                 else:
                     keep_segment = [float(prev_segment_end), float(start)]
-                    logging.info('Keeping segment from %s to %s...' % (keep_segment[0], keep_segment[1]))
+                    logging.info('* Keeping segment from %s to %s' % (keep_segment[0], keep_segment[1]))
                     segments.append(keep_segment)
                 prev_segment_end = end
 
     # Write the final keep segment from the end of the last commercial break to the end of the file.
     keep_last_segment = [float(prev_segment_end), -1]
-    logging.info('Keeping segment from %s to the end of the file.' % keep_last_segment[0])
+    logging.info('* Keeping segment from %s to the end of the file.' % keep_last_segment[0])
     segments.append(keep_last_segment)
 
     segment_files = []
@@ -212,18 +212,17 @@ try:
             # If the last drop segment ended at the end of the file, we will have written a zero-duration file.
             if os.path.exists(segment_file_name):
                 if os.path.getsize(segment_file_name) < 1000:
-                    logging.info('Last segment ran to the end of the file, not adding bogus segment %s for concatenation.' % (i + 1))
-                    continue
-
-                segment_files.append(segment_file_name)
-                sfn = f'file {segment_file_name}\n'.encode()
-                segment_list_file.write(sfn)
+                    logging.info('Last segment ran to the end of the file, not adding bogus segment %s for merge.' % (i + 1))
+                else:
+                    segment_files.append(segment_file_name)
+                    sfn = f'file {segment_file_name}\n'.encode()
+                    segment_list_file.write(sfn)
 
 except:
     logging.exception('Something went wrong during splitting:')
     cleanup_and_exit(temp_dir, SAVE_ALWAYS or SAVE_FORENSICS, EXCEPTION_HANDLED)
 
-logging.info('Going to concatenate %s files from the segment list.' % len(segment_files))
+logging.info('Merging %s files from the segment list.' % len(segment_files))
 try:
     cmd = [FFMPEG_PATH, '-y', '-f', 'concat', '-i', segment_list_file_path, '-c', 'copy', os.path.join(temp_dir, video_basename)]
     logging.debug('[ffmpeg] Command: %s' % cmd)
