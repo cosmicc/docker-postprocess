@@ -80,36 +80,6 @@ def sizeof_fmt(num, suffix='B'):
     return "%.1f%s%s" % (num, 'Y', suffix)
 
 
-log.log('STARTUP', 'Postprocess main script is starting')
-
-if not process_path.is_dir():
-    log.error('Poll directory does not exist. Exiting.')
-    os._exit(2)
-
-if not transcode_path.is_dir():
-    log.critical(f'Transcode path {str(transcode_path)} does not exist. Exiting.')
-    os._exit(3)
-diskusage = disk_usage('/transcode')
-if diskusage[0] < 12884901888:
-    log.critical(f'Transcode path {str(transcode_path)} under 12G. Exiting.')
-    os._exit(3)
-else:
-    log.info(f'Transcode path {str(transcode_path)} reports total size of {sizeof_fmt(diskusage[0])}')
-tc = 0
-for transcontents in transcode_path.iterdir():
-    log.debug(f'Transcode trash: {str(transcontents)}')
-    tc += 1
-if tc > 0:
-    log.warning(f'Transode directory {transcode_path} is not empty. Clearing.')
-    try:
-        os.system('rm -rf %s/*' % transcode_path)
-    except:
-        log.exception(f'Error clearing transcode directory {str(transcode_path)}')
-        os._exit(3)
-
-client = DelugeRPCClient(deluge_host, deluge_port, deluge_username, deluge_password)
-
-
 def finish_log(label, result, videofile):
     logline = f'{label},{result},{videofile.name}\n'
     with open(str(finishlog), "a") as finishfile:
@@ -190,30 +160,7 @@ def plexdvrprocess(file):
             else:
                 log.warning(f'Comskip completed ({comskip_error[result]})')
             configfile = Path('/config/autoProcessDVR.ini')
-            log.info(f'Using x264 config file: {str(configfile)}')
-            start_size = getsize(procfull)
-            log.info(f'Starting x264 conversion {sizeof_fmt(start_size)}: {str(procfile)}')
-            cmd = ['/usr/bin/python3', '/opt/mp4_automator/manual.py', '-i', f'{procfull}', '-a', '-c', f'{str(configfile)}']
-            # log.debug(f'cmd: {cmd}')
-            process = subprocess.Popen(cmd)
-            result = process.wait()
-            if result == 0:
-                end_size = procfull.stat().st_size
-                if start_size - end_size >= 0:
-                    pre = '-'
-                else:
-                    pre = '+'
-                log.success(f'x264 Conversion successful: ({pre}{sizeof_fmt(abs(start_size - end_size))}) {sizeof_fmt(start_size)} -> {sizeof_fmt(end_size)} ')
-                if file.exists():
-                    file.unlink()
-                else:
-                    log.warning(f'Trying to remove file but doesnt exist: {str(file)}')
-                finish_log('tvdvr', f'success', file)
-            else:
-                log.error(f'Error ({result}) returned in x264 conversion')
-                file.rename(file.with_suffix('.failed'))
-                log.info(f'File marked failed: {file.with_suffix(".failed")}')
-                finish_log('tvdvr', f'conversion error ({result})', file)
+            transcode_video(file, procfull, configfile)
     else:
         log.error(f'Cannot process video, file is missing')
         file.rename(file.with_suffix('.missing'))
@@ -243,54 +190,81 @@ def delugeprocess(file):
             configfile = Path('/config/autoProcessTV.ini')
         elif str(procpath) == '/downloads/complete/movies':
             configfile = Path('/config/autoProcessMOVIE.ini')
-        log.info(f'Using x264 config file: {str(configfile)}')
-        if procfull.exists():
-            start_size = getsize(procfull)
-            log.info(f'Starting x264 conversion {sizeof_fmt(start_size)}: {str(procfile)}')
-            cmd = ['/usr/bin/python3', '/opt/mp4_automator/manual.py', '-i', f'{procfull}', '-a', '-c', f'{str(configfile)}']
-            # log.debug(cmd)
-            process = subprocess.Popen(cmd)
-            result = process.wait()
-            if result == 0:
-                if procfull.exists():
-                    end_size = procfull.stat().st_size
-                else:
-                    log.warning(f'File was moved before we could get the size')
-                    end_size = 0
-                if start_size - end_size >= 0:
-                    pre = '-'
-                else:
-                    pre = '+'
-                log.success(f'x264 Conversion successful: ({pre}{sizeof_fmt(abs(start_size - end_size))}) {sizeof_fmt(start_size)} -> {sizeof_fmt(end_size)} ')
-                finish_log('deluge', f'success', file)
-                if file.exists():
-                    file.unlink()
-                else:
-                    log.warning(f'Trying to remove file but doesnt exist: {str(file)}')
-                try:
-                    client.call('core.remove_torrent', downloadid, True)
-                except:
-                    log.exception(f'Deluge removal failed: {str(procfile)}')
-                else:
-                    log.info(f'Deluge removal success: {str(procfile)}')
-                torrentfile = Path('/downloads/torrents') / (str(procfile) + '.torrent')
-                if torrentfile.exists():
-                    torrentfile.unlink()
-                    log.info(f'Removed torrent file: {str(torrentfile)}')
-                else:
-                    log.warning(f'No torrent file to remove: {str(torrentfile)}')
+        if transcode_video(file, procfull, configfile):
+            try:
+                client.call('core.remove_torrent', downloadid, True)
+            except:
+                log.exception(f'Deluge removal failed: {str(procfile)}')
             else:
-                log.error(f'Error ({result}) returned in x264 conversion')
-                file.rename(file.with_suffix('.failed'))
-                log.info(f'File marked failed: {file.with_suffix(".failed")}')
-                finish_log('deluge', f'conversion error ({result})', file)
-        else:
-            log.error(f'Cannot process video, file is missing')
-            file.rename(file.with_suffix('.missing'))
-            log.info(f'File marked failed: {file.with_suffix(".missing")}')
-            finish_log('deluge', f'missing file', file)
+                log.info(f'Deluge removal success: {str(procfile)}')
+            torrentfile = Path('/downloads/torrents') / (str(procfile) + '.torrent')
+            if torrentfile.exists():
+                torrentfile.unlink()
+                log.info(f'Removed torrent file: {str(torrentfile)}')
+            else:
+                log.warning(f'No torrent file to remove: {str(torrentfile)}')
         log.log('FINISH', f'Finished Deluge file proccessing: {str(procfile)}')
 
+
+def transcode_video(file, videofile, configfile):
+    log.info(f'Using x264 config file: {str(configfile)}')
+    if videofile.exists():
+        start_size = getsize(videofile)
+        log.info(f'Starting x264 conversion {sizeof_fmt(start_size)}: {videofile.name}')
+        cmd = ['/usr/bin/python3', '/opt/mp4_automator/manual.py', '-i', f'{videofile}', '-a', '-c', f'{str(configfile)}']
+        # log.debug(f'cmd: {cmd}')
+        process = subprocess.Popen(cmd)
+        result = process.wait()
+        if result == 0:
+            log.success(f'x264 Conversion successful: {videofile.name}')
+            if file.exists():
+                file.unlink()
+            else:
+                log.warning(f'Trying to remove file but doesnt exist: {str(file)}')
+            finish_log('tvdvr', f'success', file)
+            return True
+        else:
+            log.error(f'Error ({result}) returned in x264 conversion')
+            file.rename(file.with_suffix('.failed'))
+            log.info(f'File marked failed: {file.with_suffix(".failed")}')
+            finish_log('tvdvr', f'conversion error ({result})', file)
+            return False
+    else:
+        log.error(f'Cannot convert video, file is missing')
+        file.rename(file.with_suffix('.missing'))
+        log.info(f'File marked failed: {file.with_suffix(".missing")}')
+        finish_log('deluge', f'missing file', file)
+        return False
+
+
+log.log('STARTUP', 'Postprocess main script is starting')
+
+if not process_path.is_dir():
+    log.error('Poll directory does not exist. Exiting.')
+    os._exit(2)
+
+if not transcode_path.is_dir():
+    log.critical(f'Transcode path {str(transcode_path)} does not exist. Exiting.')
+    os._exit(3)
+diskusage = disk_usage('/transcode')
+if diskusage[0] < 12884901888:
+    log.critical(f'Transcode path {str(transcode_path)} under 12G. Exiting.')
+    os._exit(3)
+else:
+    log.info(f'Transcode path {str(transcode_path)} reports total size of {sizeof_fmt(diskusage[0])}')
+tc = 0
+for transcontents in transcode_path.iterdir():
+    log.debug(f'Transcode trash: {str(transcontents)}')
+    tc += 1
+if tc > 0:
+    log.warning(f'Transode directory {transcode_path} is not empty. Clearing.')
+    try:
+        os.system('rm -rf %s/*' % transcode_path)
+    except:
+        log.exception(f'Error clearing transcode directory {str(transcode_path)}')
+        os._exit(3)
+
+client = DelugeRPCClient(deluge_host, deluge_port, deluge_username, deluge_password)
 
 while True:
     try:
