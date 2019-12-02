@@ -251,7 +251,11 @@ def delugeprocess(file):
             process = subprocess.Popen(cmd)
             result = process.wait()
             if result == 0:
-                end_size = procfull.stat().st_size
+                if procfull.exists():
+                    end_size = procfull.stat().st_size
+                else:
+                    log.warning(f'File was moved before we could get the size')
+                    end_size = 0
                 if start_size - end_size >= 0:
                     pre = '-'
                 else:
