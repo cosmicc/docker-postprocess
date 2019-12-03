@@ -195,6 +195,8 @@ def delugeprocess(file):
             configfile = Path('/config/autoProcessTV.ini')
         elif str(procpath) == '/downloads/complete/movies':
             configfile = Path('/config/autoProcessMOVIE.ini')
+        if 'Mandalorian' in str(procfile) or 'Universe' in str(procfile) or 'Planet' in str(procfile):
+            configfile = Path('/config/autoProcessTVHD.ini')
         if transcode_video(file, procfull, configfile, False):
             try:
                 client.call('core.remove_torrent', downloadid, True)
