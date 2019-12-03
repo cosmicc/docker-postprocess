@@ -222,8 +222,8 @@ def transcode_video(file, videofile, configfile, plexdvr):
     log.info(f'Using x264 config file: {str(configfile)}')
     if videofile.exists():
         start_size = getsize(videofile)
-        if start_size < 200000000:
-            log.error(f'Video file under 200MB, considering failed')
+        if start_size < 100000000:
+            log.error(f'Video file under 100MB, considering failed')
             file.rename(file.with_suffix('.failed'))
             log.info(f'File marked failed: {file.with_suffix(".failed")}')
             finish_log(ptype, f'empty video file', file)
