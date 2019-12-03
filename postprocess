@@ -253,8 +253,7 @@ def transcode_video(file, videofile, configfile, plexdvr):
                 log.info(f'File marked failed: {file.with_suffix(".failed")}')
                 if plexdvr:
                     dvrfailfile = Path(f'/downloads/complete/dvr/{videofile.name}.failed')
-                    with open(str(dvrfailfile), "w") as failfile:
-                        failfile.write(str(videofile))
+                    dvrfailfile.write_text(str(videofile))
                     log.info(f'Sent fail result to Plex: {str(dvrfailfile)}')
                 finish_log(ptype, f'conversion error ({result})', file)
                 return False
