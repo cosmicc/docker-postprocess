@@ -92,7 +92,7 @@ def check_pause():
         log.warning('Pause file detected. Pausing Script')
         while pausefile1.exists() or pausefile2.exists():
             sleep(10)
-        log.info('Pause file cleared. Resuming Script')
+        log.warning('Pause file cleared. Resuming Script')
 
 
 def getsize(pobj):

@@ -167,7 +167,7 @@ except:
     cleanup_and_exit(temp_dir, SAVE_ALWAYS or SAVE_FORENSICS, EXCEPTION_HANDLED)
 
 edl_file = os.path.join(comskip_out, video_name + '.edl')
-logging.info('Using EDL: ' + edl_file)
+logging.info('Generated EDL: ' + edl_file)
 try:
     segments = []
     prev_segment_end = 0.0

@@ -29,7 +29,7 @@
 ################################################################################
 
 # Path to the log file used by this script.
-LOGFILE="/config/logs/plex_postdvr.log"
+LOGFILE="/downloads/process/plex_postdvr.log"
 
 # Maximum time (in seconds) to wait for the video to be converted.
 CONVERSION_TIMEOUT=86400
@@ -101,7 +101,7 @@ do
         fi
     fi
 
-    log "Waiting for recording to be converted..."
+    # log "Waiting for recording to be converted..."
     sleep 30
     TIMEOUT="$(expr "$TIMEOUT" - 30)"
 done
