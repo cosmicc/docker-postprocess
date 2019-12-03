@@ -9,6 +9,7 @@ import os
 import subprocess
 import sys
 from configparser import ConfigParser
+from datetime import datetime
 from pathlib import Path
 from time import sleep
 
@@ -81,7 +82,7 @@ def sizeof_fmt(num, suffix='B'):
 
 
 def finish_log(label, result, videofile):
-    logline = f'{label},{result},{videofile.name}\n'
+    logline = f'{datetime.now()},{label},{result},{videofile.name}\n'
     with open(str(finishlog), "a") as finishfile:
         finishfile.write(logline)
     log.info(f'Wrote finishlog: {label},{result},{videofile}')
