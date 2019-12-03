@@ -222,14 +222,16 @@ def transcode_video(file, videofile, configfile, plexdvr):
     log.info(f'Using x264 config file: {str(configfile)}')
     if videofile.exists():
         start_size = getsize(videofile)
-        if start_size < 50000000:
-            log.error(f'Video file under 50MB, considering failed')
+        if start_size < 200000000:
+            log.error(f'Video file under 200MB, considering failed')
             file.rename(file.with_suffix('.failed'))
             log.info(f'File marked failed: {file.with_suffix(".failed")}')
             finish_log(ptype, f'empty video file', file)
             if plexdvr:
-                dvrfailfile = Path(f'/downloads/complete/dvr/{videofile.name}')
-                log.info(f'Sending fail result to Plex: {str(dvrfailfile)}')
+                dvrfailfile = Path(f'/downloads/complete/dvr/{videofile.name}.failed')
+                with open(str(dvrfailfile), "w") as failfile:
+                    failfile.write(str(videofile))
+                log.info(f'Sent fail result to Plex: {str(dvrfailfile)}')
             return False
         else:
             log.info(f'Starting x264 conversion {sizeof_fmt(start_size)}: {videofile.name}')
@@ -250,8 +252,10 @@ def transcode_video(file, videofile, configfile, plexdvr):
                 file.rename(file.with_suffix('.failed'))
                 log.info(f'File marked failed: {file.with_suffix(".failed")}')
                 if plexdvr:
-                    dvrfailfile = Path(f'/downloads/complete/dvr/{videofile.name}')
-                    log.info(f'Sending fail result to Plex: {str(dvrfailfile)}')
+                    dvrfailfile = Path(f'/downloads/complete/dvr/{videofile.name}.failed')
+                    with open(str(dvrfailfile), "w") as failfile:
+                        failfile.write(str(videofile))
+                    log.info(f'Sent fail result to Plex: {str(dvrfailfile)}')
                 finish_log(ptype, f'conversion error ({result})', file)
                 return False
     else:
@@ -259,8 +263,10 @@ def transcode_video(file, videofile, configfile, plexdvr):
         file.rename(file.with_suffix('.missing'))
         log.info(f'File marked failed: {file.with_suffix(".missing")}')
         if plexdvr:
-            dvrfailfile = Path(f'/downloads/complete/dvr/{videofile.name}')
-            log.info(f'Sending fail result to Plex: {str(dvrfailfile)}')
+            dvrfailfile = Path(f'/downloads/complete/dvr/{videofile.name}.failed')
+            with open(str(dvrfailfile), "w") as failfile:
+                failfile.write(str(videofile))
+            log.info(f'Sent fail result to Plex: {str(dvrfailfile)}')
         finish_log(ptype, f'missing file', file)
         return False
 
