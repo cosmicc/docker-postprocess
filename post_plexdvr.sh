@@ -52,8 +52,7 @@ log() {
 }
 
 die() {
-    log "ERROR: $*"
-    log "Post-processing terminated with error."
+    log "Post-processing terminated with error: $*"
     exit 1
 }
 
@@ -74,12 +73,12 @@ CONVERTED_VIDEO_PATH="$VIDEO_CONVERTER_OUTPUT_DIR/$CONVERTED_VIDEO_FILENAME"
 FAILED_VIDEO_PATH="$VIDEO_CONVERTER_OUTPUT_DIR/$CONVERTED_VIDEO_FILENAME.failed"
 
 
-log "Starting post-processing of recording '$SOURCE_PATH'..."
+log "Plex post-processing starting for: ['$SOURCE_PATH']"
 
 # Copy the video to the folder where it will be converted.
-log "Setting recording '$SOURCE_PATH' to poll folder '$VIDEO_CONVERTER_WATCH_DIR'..."
+log "Requesting conversion of [$SOURCE_PATH] -> [$VIDEO_CONVERTER_WATCH_DIR/$SOURCE_FILENAME.plexdvr]"
 
-echo "$SOURCE_PATH" > "$VIDEO_CONVERTER_WATCH_DIR/$SOURCE_FILENAME.tvdvr"
+echo "$SOURCE_PATH" > "$VIDEO_CONVERTER_WATCH_DIR/$SOURCE_FILENAME.plexdvr"
 
 # Wait for the video to be converted.
 TIMEOUT="$CONVERSION_TIMEOUT"
@@ -89,7 +88,7 @@ do
         hash="$(get_file_hash "$CONVERTED_VIDEO_PATH")"
         sleep 10
         if [ "$hash" == "$(get_file_hash "$CONVERTED_VIDEO_PATH")" ]; then
-            log "Converted video detected at '$CONVERTED_VIDEO_PATH' with hash of '$hash'."
+            log "Converted video detected at [$CONVERTED_VIDEO_PATH] with hash of [$hash]"
             break;
         fi
     fi
@@ -97,7 +96,8 @@ do
         hash="$(get_file_hash "$FAILED_VIDEO_PATH")"
         sleep 10
         if [ "$hash" == "$(get_file_hash "$FAILED_VIDEO_PATH")" ]; then
-            die "Failed video detected at '$FAILED_VIDEO_PATH' with hash of '$hash'."
+            rm "$FAILED_VIDEO_PATH"
+            die "Failed video detected at [$FAILED_VIDEO_PATH] with hash of [$hash]"
         fi
     fi
 
@@ -111,17 +111,24 @@ if [ "$TIMEOUT" -le 0 ]; then
     die "Recording still not converted after $CONVERSION_TIMEOUT seconds (expected location: '$CONVERTED_VIDEO_PATH')."
 fi
 
-log "Video successfully converted.."
+# log "Video successfully converted: [$SOURCE_PATH]"
 
 # Move converted video back to the original directory.
-log "Moving converted recording '$CONVERTED_VIDEO_PATH' to '$SOURCE_DIRNAME'..."
+log "Moving converted recording: [$CONVERTED_VIDEO_PATH] -> [$SOURCE_DIRNAME/$CONVERTED_VIDEO_FILENAME]"
 mv -v "$CONVERTED_VIDEO_PATH" "$SOURCE_DIRNAME"
 if [ $? -ne 0 ]; then
-    die "Failed to move converted recording '$CONVERTED_VIDEO_PATH' to '$SOURCE_DIRNAME'."
+    die "Failed to move converted recording: [$CONVERTED_VIDEO_PATH] -> [$SOURCE_DIRNAME]"
 fi
+log "Converted recording moved successfully: [$CONVERTED_VIDEO_PATH] -> [$SOURCE_DIRNAME/$CONVERTED_VIDEO_FILENAME]"
+sync
 
 # Remove the source file.
-log "Removing original recording '$SOURCE_PATH'..."
+log "Removing original recording: [$SOURCE_PATH]"
 rm "$SOURCE_PATH"
-
-log "Post-processing terminated with success."
+if [ $? -ne 0 ]; then
+    die "Failed to remove original: [$SOURCE_PATH]"
+fi
+log "Original recording removed: [$SOURCE_PATH]"
+sync
+log "Plex post-processing success for: [$SOURCE_PATH] -> [$SOURCE_DIRNAME/$CONVERTED_VIDEO_FILENAME]"
+exit 0

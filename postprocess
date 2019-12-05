@@ -312,7 +312,7 @@ while True:
         tvlist = []
         movielist = []
         for filep in process_path.iterdir():
-            if filep.suffix == '.tvdvr':
+            if filep.suffix == '.plexdvr':
                 fcontents = filep.read_text()
                 if fcontents is None:
                     log.warning(f'Cannot parse process file contents ({str(filep)})')
@@ -336,7 +336,7 @@ while True:
                             log.info(f'File {filep.name} from {fsplit[3].strip()} is not a Movie or TV Show. Ignoring.')
                             filep.unlink()
         if len(dvrlist) > 0 or len(tvlist) > 0 or len(movielist) > 0:
-            log.info(f'Found {len(dvrlist)} tvdvr videos, {len(tvlist)} tv shows, and {len(movielist)} movies to process')
+            log.info(f'Found {len(dvrlist)} PlexDVR videos, {len(tvlist)} TV Shows, and {len(movielist)} Movies to process')
             # Process any tvdvvr videos in the list first
             if len(dvrlist) > 0:
                 plexdvrprocess(dvrlist[0])
