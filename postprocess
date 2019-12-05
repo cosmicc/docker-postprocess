@@ -327,13 +327,13 @@ while True:
                     filep.rename(filep.with_suffix('.ignored'))
                 else:
                     if enabledeluge:
-                        procpath = Path(fsplit[3])
+                        procpath = Path(fsplit[3].strip())
                         if str(procpath) == '/downloads/complete/tv':
                             tvlist.append(filep)
                         elif str(procpath) == '/downloads/complete/movies':
                             movielist.append(filep)
                         else:
-                            log.warning(f'File {filep.name} from {fsplit[3]} is not a Movie or TV Show. Ignoring and deleting.')
+                            log.info(f'File {filep.name} from {fsplit[3].strip()} is not a Movie or TV Show. Ignoring.')
                             filep.unlink()
         if len(dvrlist) > 0 or len(tvlist) > 0 or len(movielist) > 0:
             log.info(f'Found {len(dvrlist)} tvdvr videos, {len(tvlist)} tv shows, and {len(movielist)} movies to process')
