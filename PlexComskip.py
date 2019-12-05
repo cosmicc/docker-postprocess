@@ -202,6 +202,7 @@ try:
             cmd = [FFMPEG_PATH, '-i', temp_video_path, '-ss', str(segment[0])]
             cmd.extend(duration_args)
             cmd.extend(['-c', 'copy', segment_file_name])
+            # cmd.extend([segment_file_name])
             logging.debug('[ffmpeg] Command: %s' % cmd)
             try:
                 subprocess.call(cmd)
