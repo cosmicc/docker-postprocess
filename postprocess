@@ -254,15 +254,18 @@ def transcode_video(file, videofile, configfile, plexdvr):
             process = subprocess.Popen(cmd)
             result = process.wait()
             if result == 0:
-                log.success(f'x264 Conversion successful: {videofile.name}')
+                convfile = determine_conversionfile(videofile)
+                if convfile:
+                    end_size = sizeof_fmt(getsize(convfile))
+                    log.debug(f'Converted filesize: {end_size}')
+                else:
+                    end_size = 'N/A'
+                log.success(f'x264 Conversion successful: [{sizeof_fmt(start_size)}->{end_size}] {videofile.name}')
                 if file.exists():
                     file.unlink()
                 else:
                     log.warning(f'Trying to remove file but doesnt exist: {str(file)}')
-                convfile = determine_conversionfile(videofile)
-                if convfile:
-                    log.info(f'filesize: {sizeof_fmt(getsize(convfile))}')
-                finish_log(ptype, f'success', file)
+                finish_log(ptype, f'success', f'[{sizeof_fmt(start_size)}->{end_size}] {file}')
                 process = subprocess.Popen('/bin/sync')
                 result = process.wait()
                 return True
