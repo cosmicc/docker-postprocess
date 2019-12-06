@@ -96,7 +96,10 @@ def sizeof_fmt(num, suffix='B'):
 
 
 def finish_log(label, result, videofile):
-    logline = f'{datetime.now()},{label},{result},{videofile.name}\n'
+    if isinstance(videofile, str):
+        logline = f'{datetime.now()},{label},{result},{videofile}\n'
+    else:
+        logline = f'{datetime.now()},{label},{result},{videofile.name}\n'
     with open(str(finishlog), "a") as finishfile:
         finishfile.write(logline)
     log.info(f'Wrote finishlog: {label},{result},{videofile}')
