@@ -73,7 +73,7 @@ comskip_error = ('Success', 'Did not modify original', 'Sanity Check Failed', 'E
 
 
 def determine_conversionfile(file):
-    epaths = ['/downloads/process/complete/dvr', '/downloads/process/complete/tv', '/downloads/process/complete/movies']
+    epaths = ['/downloads/process/complete/dvr', '/downloads/process/complete/tv', '/downloads/process/complete/movies', '/downloads/process/complete/nocategory']
     log.debug(f'Trying to determine output filename from: [{file.stem}]')
     for epath in epaths:
         foundfile = Path(f'{epath}/{file.stem}.mp4')
