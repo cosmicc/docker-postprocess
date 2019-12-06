@@ -259,7 +259,7 @@ def transcode_video(file, videofile, configfile, plexdvr):
                     file.unlink()
                 else:
                     log.warning(f'Trying to remove file but doesnt exist: {str(file)}')
-                convfile = determine_conversionfile(file)
+                convfile = determine_conversionfile(videofile)
                 if convfile:
                     log.info(f'filesize: {sizeof_fmt(getsize(convfile))}')
                 finish_log(ptype, f'success', file)
