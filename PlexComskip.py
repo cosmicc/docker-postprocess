@@ -242,7 +242,7 @@ try:
         cleanup_and_exit(temp_dir, SAVE_ALWAYS, CONVERSION_DID_NOT_MODIFY_ORIGINAL)
     elif input_size and 1.1 > float(output_size) / float(input_size) > 0.5:
         logging.success('Output file size looked sane, we\'ll replace the original: %s -> %s' % (sizeof_fmt(input_size), sizeof_fmt(output_size)))
-        logging.info('Copying the output file into place: %s -> %s' % (video_basename, output_video_dir))
+        logging.info('Copying the output: %s -> %s' % (video_basename, output_video_dir))
         shutil.copy(os.path.join(temp_dir, video_basename), output_video_dir)
         cleanup_and_exit(temp_dir, SAVE_ALWAYS)
     else:
