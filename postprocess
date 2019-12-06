@@ -72,9 +72,14 @@ log.add(sink=str(logpath), level=lev, buffering=1, enqueue=True, backtrace=True,
 comskip_error = ('Success', 'Did not modify original', 'Sanity Check Failed', 'Exception Handled', 'Failed')
 
 
+def syncfs():
+    subprocess.Popen('/bin/sync').wait()
+
+
 def determine_conversionfile(file):
     epaths = ['/downloads/process/complete/dvr', '/downloads/process/complete/tv', '/downloads/process/complete/movies', '/downloads/process/complete/nocategory']
     log.debug(f'Trying to determine output filename from: [{file.stem}]')
+    syncfs()
     for epath in epaths:
         foundfile = Path(f'{epath}/{file.stem}.mp4')
         log.debug(f'Looking for: {str(foundfile)}')
@@ -189,6 +194,7 @@ def plexdvrprocess(file):
         log.info(f'File marked failed: {file.with_suffix(".missing")}')
         finish_log(ptype, f'missing file', file)
     log.log('FINISH', f'Finished PlexDVR file proccessing: {str(procfile)}')
+    syncfs()
 
 
 def delugeprocess(file):
@@ -229,6 +235,7 @@ def delugeprocess(file):
             else:
                 log.warning(f'No torrent file to remove: {str(torrentfile)}')
         log.log('FINISH', f'Finished Deluge file proccessing: {str(procfile)}')
+        syncfs()
 
 
 def transcode_video(file, videofile, configfile, plexdvr):
@@ -269,8 +276,7 @@ def transcode_video(file, videofile, configfile, plexdvr):
                 else:
                     log.warning(f'Trying to remove file but doesnt exist: {str(file)}')
                 finish_log(ptype, f'success', f'[{sizeof_fmt(start_size)}->{end_size}] {file}')
-                process = subprocess.Popen('/bin/sync')
-                result = process.wait()
+                syncfs()
                 return True
             else:
                 log.error(f'Error ({result}) returned in x264 conversion')
