@@ -72,6 +72,24 @@ log.add(sink=str(logpath), level=lev, buffering=1, enqueue=True, backtrace=True,
 comskip_error = ('Success', 'Did not modify original', 'Sanity Check Failed', 'Exception Handled', 'Failed')
 
 
+def determine_conversionfile(file):
+    log.debug(f'Trying to determine output filename from: [{file.name}]')
+    if Path(f'/downloads/process/complete/dvr/{file.stem}.mp4').exists():
+        foundfile = Path(f'/downloads/process/complete/dvr/{file.name}.mp4')
+    elif Path(f'/downloads/process/complete/tv/{file.stem}.mp4').exists():
+        foundfile = Path(f'/downloads/process/complete/tv/{file.name}.mp4')
+    elif Path(f'/downloads/process/complete/movies/{file.stem}.mp4').exists():
+        foundfile = Path(f'/downloads/process/complete/movies/{file.name}.mp4')
+    else:
+        foundfile = False
+    if foundfile:
+        log.info(f'Found converted file: {str(foundfile)}')
+        return foundfile
+    else:
+        log.warning(f'Could not find a converted file from: {file.name}')
+        return False
+
+
 # Human-readable bytes.
 def sizeof_fmt(num, suffix='B'):
     for unit in ['', 'K', 'M', 'G', 'T', 'P', 'E', 'Z']:
@@ -245,7 +263,12 @@ def transcode_video(file, videofile, configfile, plexdvr):
                     file.unlink()
                 else:
                     log.warning(f'Trying to remove file but doesnt exist: {str(file)}')
+                convfile = determine_conversionfile(file)
+                if convfile:
+                    log.info(f'filesize: {sizeof_fmt(getsize(convfile))}')
                 finish_log(ptype, f'success', file)
+                process = subprocess.Popen('/bin/sync')
+                result = process.wait()
                 return True
             else:
                 log.error(f'Error ({result}) returned in x264 conversion')
