@@ -60,6 +60,12 @@ get_file_hash() {
     stat -c '%n %s %Y' "$1" | md5sum | cut -d' ' -f1
 }
 
+filesize() {
+    BSIZE=$(stat --printf="%s" $1)
+    numfmt --to=iec --suffix=B $BSIZE
+}
+
+
 # Get the path of the video to be processed.
 SOURCE_PATH="${1:-UNSET}"
 if [ "$SOURCE_PATH" = "UNSET" ]; then
@@ -73,7 +79,8 @@ CONVERTED_VIDEO_PATH="$VIDEO_CONVERTER_OUTPUT_DIR/$CONVERTED_VIDEO_FILENAME"
 FAILED_VIDEO_PATH="$VIDEO_CONVERTER_OUTPUT_DIR/$CONVERTED_VIDEO_FILENAME.failed"
 
 
-log "Plex post-processing starting for: ['$SOURCE_PATH']"
+STARTSIZE = "$(filesize '$SOURCE_PATH')"
+log "Plex post-processing starting for: ['$STARTSIZE'] ['$SOURCE_PATH']"
 
 # Copy the video to the folder where it will be converted.
 log "Requesting conversion of [$SOURCE_PATH] -> [$VIDEO_CONVERTER_WATCH_DIR/$SOURCE_FILENAME.plexdvr]"
@@ -111,7 +118,8 @@ if [ "$TIMEOUT" -le 0 ]; then
     die "Recording still not converted after $CONVERSION_TIMEOUT seconds (expected location: '$CONVERTED_VIDEO_PATH')."
 fi
 
-# log "Video successfully converted: [$SOURCE_PATH]"
+ENDSIZE = "$(filesize '$CONVERTED_VIDEO_PATH')"
+log "Video successfully converted: [$ENDSIZE] [$SOURCE_PATH]"
 
 # Move converted video back to the original directory.
 log "Moving converted recording: [$CONVERTED_VIDEO_PATH] -> [$SOURCE_DIRNAME/$CONVERTED_VIDEO_FILENAME]"
@@ -130,5 +138,6 @@ if [ $? -ne 0 ]; then
 fi
 log "Original recording removed: [$SOURCE_PATH]"
 sync
+log "Conversion comparison [$STARTSIZE] -> [$ENDSIZE] for [$CONVERTED_VIDEO_FILENAME]"
 log "Plex post-processing success for: [$SOURCE_PATH] -> [$SOURCE_DIRNAME/$CONVERTED_VIDEO_FILENAME]"
 exit 0
