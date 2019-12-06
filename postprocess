@@ -73,21 +73,17 @@ comskip_error = ('Success', 'Did not modify original', 'Sanity Check Failed', 'E
 
 
 def determine_conversionfile(file):
-    log.debug(f'Trying to determine output filename from: [{file.name}]')
-    if Path(f'/downloads/process/complete/dvr/{file.stem}.mp4').exists():
-        foundfile = Path(f'/downloads/process/complete/dvr/{file.name}.mp4')
-    elif Path(f'/downloads/process/complete/tv/{file.stem}.mp4').exists():
-        foundfile = Path(f'/downloads/process/complete/tv/{file.name}.mp4')
-    elif Path(f'/downloads/process/complete/movies/{file.stem}.mp4').exists():
-        foundfile = Path(f'/downloads/process/complete/movies/{file.name}.mp4')
-    else:
-        foundfile = False
-    if foundfile:
-        log.info(f'Found converted file: {str(foundfile)}')
-        return foundfile
-    else:
-        log.warning(f'Could not find a converted file from: {file.name}')
-        return False
+    epaths = ['/downloads/process/complete/dvr', '/downloads/process/complete/tv', '/downloads/process/complete/movies']
+    log.debug(f'Trying to determine output filename from: [{file.stem}]')
+    for epath in epaths:
+        foundfile = Path(f'{epath}/{file.stem}.mp4')
+        log.debug(f'Looking for: {str(foundfile)}')
+        if foundfile.exists():
+            log.info(f'Found converted file: {str(foundfile)}')
+            return foundfile
+        else:
+            log.warning(f'Could not find a converted file from: {file.stem}.mp4')
+            return False
 
 
 # Human-readable bytes.
