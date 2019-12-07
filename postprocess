@@ -6,6 +6,7 @@ https://github.com/cosmicc/docker-postprocess
 '''
 
 import os
+import shutil
 import subprocess
 import sys
 from configparser import ConfigParser
@@ -89,6 +90,18 @@ def determine_conversionfile(file):
         else:
             log.warning(f'Could not find a converted file from: {file.stem}.mp4')
             return False
+
+
+def failfile(file, reason, plexdvr=False):
+    file.rename(file.with_suffix(f'.{reason}'))
+    failpath = Path('/downloads/process/failed')
+    tofile = failpath / file.name
+    shutil.move(file, tofile)
+    log.info(f'File marked failed ({reason}): {str(tofile)}')
+    if plexdvr:
+        dvrfailfile = Path(f'/downloads/complete/dvr/{file.stem}.failed')
+        dvrfailfile.write_text(f'{reason}')
+        log.info(f'Sent fail result to Plex: {str(dvrfailfile)}')
 
 
 # Human-readable bytes.
@@ -175,8 +188,7 @@ def plexdvrprocess(file):
         result = process.wait()
         if result != 0 and result != 2 and result != 1 and result != 4:
             log.error(f'Error ({comskip_error[result]}) returned from comskip')
-            file.rename(file.with_suffix('.failed'))
-            log.info(f'File marked failed: {file.with_suffix(".failed")}')
+            failfile(file, 'comskip_failed', plexdvr=True)
             finish_log(ptype, f'comskip error ({comskip_error[result]})', file)
         else:
             if result == 0:
@@ -190,8 +202,7 @@ def plexdvrprocess(file):
             transcode_video(file, procfull, configfile, True)
     else:
         log.error(f'Cannot process video, file is missing')
-        file.rename(file.with_suffix('.missing'))
-        log.info(f'File marked failed: {file.with_suffix(".missing")}')
+        failfile(file, 'missing', plexdvr=True)
         finish_log(ptype, f'missing file', file)
     log.log('FINISH', f'Finished PlexDVR file proccessing: {str(procfile)}')
     syncfs()
@@ -203,7 +214,7 @@ def delugeprocess(file):
     fsplit = fcontents.split('|')
     if len(fsplit) < 4:
         log.warning(f'Cannot parse process file contents: ({str(file)})')
-        file.rename(file.with_suffix('.ignored'))
+        failfile(file, 'ignored')
         finish_log(ptype, f'parse error', file)
     else:
         procfile = Path(fsplit[2])
@@ -248,14 +259,8 @@ def transcode_video(file, videofile, configfile, plexdvr):
         start_size = getsize(videofile)
         if start_size < 100000000:
             log.error(f'Video file under 100MB, considering failed')
-            file.rename(file.with_suffix('.failed'))
-            log.info(f'File marked failed: {file.with_suffix(".failed")}')
+            failfile(file, 'too_small', plexdvr=plexdvr)
             finish_log(ptype, f'empty video file', file)
-            if plexdvr:
-                dvrfailfile = Path(f'/downloads/complete/dvr/{videofile.name}.failed')
-                with open(str(dvrfailfile), "w") as failfile:
-                    failfile.write(str(videofile))
-                log.info(f'Sent fail result to Plex: {str(dvrfailfile)}')
             return False
         else:
             log.info(f'Starting x264 conversion {sizeof_fmt(start_size)}: {videofile.name}')
@@ -280,23 +285,12 @@ def transcode_video(file, videofile, configfile, plexdvr):
                 return True
             else:
                 log.error(f'Error ({result}) returned in x264 conversion')
-                file.rename(file.with_suffix('.failed'))
-                log.info(f'File marked failed: {file.with_suffix(".failed")}')
-                if plexdvr:
-                    dvrfailfile = Path(f'/downloads/complete/dvr/{videofile.name}.failed')
-                    dvrfailfile.write_text(str(videofile))
-                    log.info(f'Sent fail result to Plex: {str(dvrfailfile)}')
+                failfile(file, 'conversion_failed', plexdvr=plexdvr)
                 finish_log(ptype, f'conversion error ({result})', file)
                 return False
     else:
         log.error(f'Cannot convert video, file is missing')
-        file.rename(file.with_suffix('.missing'))
-        log.info(f'File marked failed: {file.with_suffix(".missing")}')
-        if plexdvr:
-            dvrfailfile = Path(f'/downloads/complete/dvr/{videofile.name}.failed')
-            with open(str(dvrfailfile), "w") as failfile:
-                failfile.write(str(videofile))
-            log.info(f'Sent fail result to Plex: {str(dvrfailfile)}')
+        failfile(file, 'missing', plexdvr=plexdvr)
         finish_log(ptype, f'missing file', file)
         return False
 
