@@ -175,6 +175,7 @@ def check_transdir():
 
 
 def plexdvrprocess(file):
+    comskip_passes = [1, 2]
     ptype = 'plexdvr'
     fcontents = file.read_text()
     procfull = Path(fcontents.strip())
@@ -185,25 +186,27 @@ def plexdvrprocess(file):
     procpath = procfull.parent
     log.debug(f'Process File Path: {str(procpath)}')
     if procfull.exists():
-        log.info(f'Executing PlexComskip for: {str(procfile)}')
-        cmd = ['/opt/PlexComskip.py', f'{str(procfull)}']
-        # log.debug(f'cmd: {cmd}')
-        process = subprocess.Popen(cmd)
-        result = process.wait()
-        if result != 0 and result != 2 and result != 1 and result != 4:
-            log.error(f'Error ({comskip_error[result]}) returned from comskip')
-            failfile(file, 'comskip_failed', plexdvr=True)
-            finish_log(ptype, f'comskip error ({comskip_error[result]})', file)
+        for cpass in comskip_passes:
+            log.info(f'Executing PlexComskip pass #{cpass} for: {str(procfile)}')
+            cmd = ['/opt/PlexComskip.py', f'{str(procfull)}']
+            # log.debug(f'cmd: {cmd}')
+            process = subprocess.Popen(cmd)
+            result = process.wait()
+            if result != 0 and result != 2 and result != 1 and result != 4:
+                log.error(f'Error ({comskip_error[result]}) returned from comskip')
+                failfile(file, 'comskip_failed', plexdvr=True)
+                finish_log(ptype, f'comskip error ({comskip_error[result]})', file)
+                break
+            else:
+                if result == 0:
+                    log.success(f'Comskip pass #{cpass} completed ({comskip_error[result]})')
+                else:
+                    log.warning(f'Comskip pass #{cpass} completed ({comskip_error[result]})')
+        if 'News' in str(procfile):
+            configfile = Path('/config/autoProcessNEWS.ini')
         else:
-            if result == 0:
-                log.success(f'Comskip completed ({comskip_error[result]})')
-            else:
-                log.warning(f'Comskip completed ({comskip_error[result]})')
-            if 'News' in str(procfile):
-                configfile = Path('/config/autoProcessNEWS.ini')
-            else:
-                configfile = Path('/config/autoProcessDVR.ini')
-            transcode_video(file, procfull, configfile, True)
+            configfile = Path('/config/autoProcessDVR.ini')
+        transcode_video(file, procfull, configfile, True)
     else:
         log.error(f'Cannot process video, file is missing')
         failfile(file, 'missing', plexdvr=True)
