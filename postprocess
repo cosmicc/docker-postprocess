@@ -96,7 +96,7 @@ def failfile(file, reason, plexdvr=False):
     filep = file.with_suffix(f'.{reason}')
     failpath = Path('/downloads/process/failed')
     tofile = failpath / filep.name
-    shutil.copy2(file, tofile)
+    shutil.copy(file, tofile)
     file.unlink()
     log.info(f'File marked failed ({reason}): {str(tofile)}')
     if plexdvr:
