@@ -93,10 +93,11 @@ def determine_conversionfile(file):
 
 
 def failfile(file, reason, plexdvr=False):
-    file.rename(file.with_suffix(f'.{reason}'))
+    filep = file.with_suffix(f'.{reason}')
     failpath = Path('/downloads/process/failed')
-    tofile = failpath / file.name
-    shutil.move(file, tofile)
+    tofile = failpath / filep.name
+    shutil.copy2(file, tofile)
+    file.unlink()
     log.info(f'File marked failed ({reason}): {str(tofile)}')
     if plexdvr:
         dvrfailfile = Path(f'/downloads/complete/dvr/{file.stem}.failed')
