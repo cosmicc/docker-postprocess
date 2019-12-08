@@ -103,7 +103,7 @@ def failfile(file, reason, plexdvr=False):
     else:
         log.warning(f'File couldnt be marked failed ({reason}): {str(tofile)}')
     if plexdvr:
-        dvrfailfile = Path(f'/downloads/complete/dvr/{file.stem}.failed')
+        dvrfailfile = Path(f'/downloads/process/complete/dvr/{file.stem}.failed')
         dvrfailfile.write_text(f'{reason}')
         log.info(f'Sent fail result to Plex: {str(dvrfailfile)}')
 
