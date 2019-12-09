@@ -187,8 +187,12 @@ def plexdvrprocess(file):
     log.debug(f'Process File Path: {str(procpath)}')
     if procfull.exists():
         for cpass in comskip_passes:
+            if cpass == 1:
+                comconfig = '/config/comskip-pass1.ini'
+            else:
+                comconfig = '/config/comskip-pass2.ini'
             log.info(f'Executing PlexComskip pass #{cpass} for: {str(procfile)}')
-            cmd = ['/opt/PlexComskip.py', f'{str(procfull)}']
+            cmd = ['/opt/PlexComskip.py', '-c', comconfig, '-i', f'{str(procfull)}']
             # log.debug(f'cmd: {cmd}')
             process = subprocess.Popen(cmd)
             result = process.wait()

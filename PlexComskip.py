@@ -13,10 +13,16 @@ import subprocess
 import sys
 import tempfile
 import uuid
+import argparse
 
 from loguru import logger as logging
 
 __name__ = 'COMSKIP'
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-c', '--ini', action='store_value', help='config file to use')
+parser.add_argument('-i', '--input', action='store_value', help='input file')
+args = parser.parse_args()
 
 # Config stuff.
 config_file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'PlexComskip.conf')
@@ -26,7 +32,6 @@ if not os.path.exists(config_file_path):
     sys.exit(1)
 
 config = configparser.SafeConfigParser({
-    'comskip-ini-path': os.path.join(os.path.dirname(os.path.realpath(__file__)), 'comskip.ini'),
     'temp-root': tempfile.gettempdir(),
     'comskip-root': tempfile.gettempdir(),
     'nice-level': '0'
@@ -34,7 +39,9 @@ config = configparser.SafeConfigParser({
 config.read(config_file_path)
 
 COMSKIP_PATH = os.path.expandvars(os.path.expanduser(config.get('Helper Apps', 'comskip-path')))
-COMSKIP_INI_PATH = os.path.expandvars(os.path.expanduser(config.get('Helper Apps', 'comskip-ini-path')))
+
+COMSKIP_INI_PATH = args.ini
+
 FFMPEG_PATH = os.path.expandvars(os.path.expanduser(config.get('Helper Apps', 'ffmpeg-path')))
 LOG_FILE_PATH = os.path.expandvars(os.path.expanduser(config.get('Logging', 'logfile-path')))
 CONSOLE_LOGGING = config.getboolean('Logging', 'console-logging')
@@ -118,7 +125,7 @@ def cleanup_and_exit(temp_dir, keep_temp=False, exit_code=CONVERSION_SUCCESS):
 
 # On to the actual work.
 try:
-    video_path = os.path.abspath(sys.argv[1])
+    video_path = os.path.abspath(args.input)
     temp_dir = os.path.join(TEMP_ROOT, session_uuid)
     comskip_out = os.path.join(COMSKIP_ROOT, session_uuid)
     os.makedirs(temp_dir)
@@ -132,9 +139,6 @@ try:
     logging.info('Using input file: %s' % video_path)
 
     output_video_dir = os.path.dirname(video_path)
-    if sys.argv[2:]:
-        logging.debug('Output will be put in: %s' % sys.argv[2])
-        output_video_dir = os.path.dirname(sys.argv[2])
 
     video_basename = os.path.basename(video_path)
     video_name, video_ext = os.path.splitext(video_basename)
