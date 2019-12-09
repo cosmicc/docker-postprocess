@@ -6,6 +6,7 @@ https://github.com/cosmicc/docker-postprocess
 Modified from original: https://github.com/ekim1337/PlexComskip
 '''
 
+import argparse
 import configparser
 import os
 import shutil
@@ -13,15 +14,14 @@ import subprocess
 import sys
 import tempfile
 import uuid
-import argparse
 
 from loguru import logger as logging
 
 __name__ = 'COMSKIP'
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-c', '--ini', action='store_value', help='config file to use')
-parser.add_argument('-i', '--input', action='store_value', help='input file')
+parser.add_argument('-c', '--ini', action='store', help='config file to use')
+parser.add_argument('-i', '--input', action='store', help='input file')
 args = parser.parse_args()
 
 # Config stuff.
