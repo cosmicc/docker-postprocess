@@ -202,7 +202,7 @@ def plexdvrprocess(file):
                 finish_log(ptype, f'comskip error ({comskip_error[result]})', file)
                 break
             else:
-                if result == 0:
+                if result == 0 or result == 1:
                     log.success(f'Comskip pass #{cpass} completed ({comskip_error[result]})')
                 else:
                     log.warning(f'Comskip pass #{cpass} completed ({comskip_error[result]})')
