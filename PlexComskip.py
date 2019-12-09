@@ -182,10 +182,12 @@ try:
                 start, end, something = segment.split()
                 if float(start) == 0.0:
                     logging.info('* Start of file is junk, skipping this segment')
-                else:
+                elif float(start) - float(prev_segment_end) >= 3.0:
                     keep_segment = [float(prev_segment_end), float(start)]
                     logging.info('* Keeping segment from %s to %s' % (keep_segment[0], keep_segment[1]))
                     segments.append(keep_segment)
+                else:
+                    logging.info('* Segment too small to keep %s to %s' % (keep_segment[0], keep_segment[1]))
                 prev_segment_end = end
 
     # Write the final keep segment from the end of the last commercial break to the end of the file.
@@ -242,15 +244,15 @@ try:
     input_size = os.path.getsize(os.path.abspath(video_path))
     output_size = os.path.getsize(os.path.abspath(os.path.join(temp_dir, video_basename)))
     if input_size and 1.01 > float(output_size) / float(input_size) > 0.99:
-        logging.warning('Output file size was too similar (doesn\'t look like we did much); we won\'t replace the original: %s -> %s' % (sizeof_fmt(input_size), sizeof_fmt(output_size)))
+        logging.warning('Output file size was too similar; we won\'t replace the original: %s -> %s' % (sizeof_fmt(input_size), sizeof_fmt(output_size)))
         cleanup_and_exit(temp_dir, SAVE_ALWAYS, CONVERSION_DID_NOT_MODIFY_ORIGINAL)
-    elif input_size and 1.1 > float(output_size) / float(input_size) > 0.5:
-        logging.success('Output file size looked sane, we\'ll replace the original: %s -> %s' % (sizeof_fmt(input_size), sizeof_fmt(output_size)))
+    elif input_size and 1.1 > float(output_size) / float(input_size) > 0.3:
+        logging.success('Output file size looked good, we\'ll replace the original: %s -> %s' % (sizeof_fmt(input_size), sizeof_fmt(output_size)))
         logging.info('Copying the output: %s -> %s' % (video_basename, output_video_dir))
         shutil.copy(os.path.join(temp_dir, video_basename), output_video_dir)
         cleanup_and_exit(temp_dir, SAVE_ALWAYS)
     else:
-        logging.warning('Output file size looked wonky (too big or too small); we won\'t replace the original: %s -> %s' % (sizeof_fmt(input_size), sizeof_fmt(output_size)))
+        logging.warning('Output file size looked too big or too small; we won\'t replace the original: %s -> %s' % (sizeof_fmt(input_size), sizeof_fmt(output_size)))
         cleanup_and_exit(temp_dir, SAVE_ALWAYS or SAVE_FORENSICS, CONVERSION_SANITY_CHECK_FAILED)
 except:
     logging.exception('Something went wrong during sanity check:')
