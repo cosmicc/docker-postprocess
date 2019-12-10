@@ -136,6 +136,5 @@ if [ $? -ne 0 ]; then
 fi
 log "Original recording removed: [$SOURCE_PATH]"
 sync
-log "Conversion comparison [$STARTSIZE] -> [$ENDSIZE] for [$CONVERTED_VIDEO_FILENAME]"
 log "Plex post-processing success for: [$SOURCE_PATH] -> [$SOURCE_DIRNAME/$CONVERTED_VIDEO_FILENAME]"
 exit 0

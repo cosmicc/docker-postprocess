@@ -165,7 +165,7 @@ try:
         logging.warning('Comskip did not exit properly with code: %s' % comskip_status)
         cleanup_and_exit(temp_dir, False, COMSKIP_FAILED)
     if comskip_status == 1:
-        logging.warning('Comskip did not find any commercials')
+        logging.success('Comskip did not find any commercials')
         cleanup_and_exit(temp_dir, False, CONVERSION_DID_NOT_MODIFY_ORIGINAL)
 
 except:
