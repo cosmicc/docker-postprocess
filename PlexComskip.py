@@ -161,10 +161,13 @@ try:
     cmd = [COMSKIP_PATH, '--output', comskip_out, '--ini', COMSKIP_INI_PATH, temp_video_path]
     logging.debug('[comskip] Command: %s' % cmd)
     comskip_status = subprocess.call(cmd)
-    if comskip_status != 0:
+    if comskip_status != 0 and comskip_status != 1:
         logging.warning('Comskip did not exit properly with code: %s' % comskip_status)
         cleanup_and_exit(temp_dir, False, COMSKIP_FAILED)
         # raise Exception('Comskip did not exit properly')
+    if comskip_status == 1:
+        logging.warning('Comskip did not find any commercials')
+        cleanup_and_exit(temp_dir, False, CONVERSION_DID_NOT_MODIFY_ORIGINAL)
 
 except:
     logging.exception('Something went wrong during comskip analysis:')
