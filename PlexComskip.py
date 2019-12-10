@@ -164,7 +164,6 @@ try:
     if comskip_status != 0 and comskip_status != 1:
         logging.warning('Comskip did not exit properly with code: %s' % comskip_status)
         cleanup_and_exit(temp_dir, False, COMSKIP_FAILED)
-        # raise Exception('Comskip did not exit properly')
     if comskip_status == 1:
         logging.warning('Comskip did not find any commercials')
         cleanup_and_exit(temp_dir, False, CONVERSION_DID_NOT_MODIFY_ORIGINAL)
@@ -240,23 +239,23 @@ try:
     subprocess.call(cmd)
 
 except:
-    logging.exception('Something went wrong during concatenation:')
+    logging.exception('Something went wrong during merge:')
     cleanup_and_exit(temp_dir, SAVE_ALWAYS or SAVE_FORENSICS, EXCEPTION_HANDLED)
 
-logging.info('Sanity checking comskipped file')
+logging.info('Checking comskipped file')
 try:
     input_size = os.path.getsize(os.path.abspath(video_path))
     output_size = os.path.getsize(os.path.abspath(os.path.join(temp_dir, video_basename)))
     if input_size and 1.01 > float(output_size) / float(input_size) > 0.99:
-        logging.warning('Output file size was too similar; we won\'t replace the original: %s -> %s' % (sizeof_fmt(input_size), sizeof_fmt(output_size)))
+        logging.warning('Output file size is too similar, not replacing the original: %s -> %s' % (sizeof_fmt(input_size), sizeof_fmt(output_size)))
         cleanup_and_exit(temp_dir, SAVE_ALWAYS, CONVERSION_DID_NOT_MODIFY_ORIGINAL)
-    elif input_size and 1.1 > float(output_size) / float(input_size) > 0.3:
-        logging.success('Output file size looked good, we\'ll replace the original: %s -> %s' % (sizeof_fmt(input_size), sizeof_fmt(output_size)))
+    elif input_size and 1.1 > float(output_size) / float(input_size) > 0.4:
+        logging.success('Output file size is good, replacing the original: %s -> %s' % (sizeof_fmt(input_size), sizeof_fmt(output_size)))
         logging.info('Copying the output: %s -> %s' % (video_basename, output_video_dir))
         shutil.copy(os.path.join(temp_dir, video_basename), output_video_dir)
         cleanup_and_exit(temp_dir, SAVE_ALWAYS)
     else:
-        logging.warning('Output file size looked too big or too small; we won\'t replace the original: %s -> %s' % (sizeof_fmt(input_size), sizeof_fmt(output_size)))
+        logging.warning('Output file size is too big or too small, not replacing the original: %s -> %s' % (sizeof_fmt(input_size), sizeof_fmt(output_size)))
         cleanup_and_exit(temp_dir, SAVE_ALWAYS or SAVE_FORENSICS, CONVERSION_SANITY_CHECK_FAILED)
 except:
     logging.exception('Something went wrong during sanity check:')
