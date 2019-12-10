@@ -187,6 +187,7 @@ try:
                     logging.info('* Keeping segment from %s to %s' % (keep_segment[0], keep_segment[1]))
                     segments.append(keep_segment)
                 else:
+                    keep_segment = [float(prev_segment_end), float(start)]
                     logging.info('* Segment too small to keep %s to %s' % (keep_segment[0], keep_segment[1]))
                 prev_segment_end = end
 
