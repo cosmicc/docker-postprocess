@@ -88,7 +88,7 @@ def determine_conversionfile(file):
             log.info(f'Found converted file: {str(foundfile)}')
             return foundfile
         else:
-            log.warning(f'Could not find a converted file from: {file.stem}.mp4')
+            log.warning(f'Could not determine converted finished file: {file.stem}.mp4')
             return False
 
 

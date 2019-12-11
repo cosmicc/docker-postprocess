@@ -16,6 +16,8 @@ if not basepath.exists():
 oldfile = ''
 for file in basepath.rglob("*"):
     if file.is_file():
+        if file.suffix == '.m4a':
+            print(str(file))
         dupefile = Path(f'{file.parent}/{file.stem}.1{file.suffix}')
         dupefile2 = Path(f'{file.parent}/{file.stem}.2{file.suffix}')
         dupefile3 = Path(f'{file.parent}/{file.stem}.3{file.suffix}')
@@ -29,11 +31,11 @@ for file in basepath.rglob("*"):
             if dupefile.stat().st_size <= file.stat().st_size:
                 if dupefile2.exists():
                     if dupefile2.stat().st_size <= file.stat().st_size:
-                        dupfile2.unlink()
+                        dupefile2.unlink()
                         print(f'Deleted: {str(dupefile)}')
                     else:
                         file.unlink()
-                        dupfile2.rename(file)
+                        dupefile2.rename(file)
                         print(f'Replaced: {str(file)} <- {str(dupefile)}')
                 else:
                     dupefile.unlink()
@@ -50,6 +52,3 @@ for file in basepath.rglob("*"):
                 file.unlink()
                 dupefile2.rename(file)
                 print(f'Replaced: {str(file)} <- {str(dupefile2)}')
-
-
-    
