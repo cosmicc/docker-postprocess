@@ -16,8 +16,6 @@ if not basepath.exists():
 oldfile = ''
 for file in basepath.rglob("*"):
     if file.is_file():
-        if file.suffix == '.m4a':
-            print(str(file))
         dupefile = Path(f'{file.parent}/{file.stem}.1{file.suffix}')
         dupefile2 = Path(f'{file.parent}/{file.stem}.2{file.suffix}')
         dupefile3 = Path(f'{file.parent}/{file.stem}.3{file.suffix}')
