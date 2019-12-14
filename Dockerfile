@@ -2,7 +2,6 @@ FROM alfg/ffmpeg:latest
 MAINTAINER GalaxyMedia
 
 VOLUME /config
-VOLUME /poll
 VOLUME /downloads
 VOLUME /transcode
 
@@ -39,6 +38,7 @@ RUN apk del builddeps \
 COPY postprocess /
 COPY PlexComskip.py /opt
 RUN chown 1000.1000 /opt/mp4_automator -R && chown 1000.1000 /opt/PlexComskip.py && chmod ugo+x /opt/PlexComskip.py && chmod ugo+x /postprocess
+ln -s /downloads/process/poll /poll
 
 ENV PATH="/opt/ffmpeg/bin:/opt/mp4_automator:${PATH}"
 
